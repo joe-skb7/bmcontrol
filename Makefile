@@ -1,4 +1,5 @@
 CC = g++
+CFLAGS = -Wall
 
 all: bmcontrol
 
