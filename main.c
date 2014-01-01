@@ -533,7 +533,7 @@ int read_ports()
 int set_port(int num, bool stat)
  {
     unsigned char PS, PS_OLD;
-    bool ret;
+    bool ret = 0;
 
     if (USB_GET_PORT(PS))
         {   //  удалость прочитать
