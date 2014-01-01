@@ -1,14 +1,15 @@
-/*Windows
-#include <cstdlib>
-#include <iostream>
+#if defined(__linux__)
 #include <usb.h>
-*/
-/*
-Linux*/
-#include <usb.h>
-#include <stdio.h>
-#include <sys/ioctl.h>
-#include <string.h>
+#include <ctime>
+#elif defined(_WIN32)
+#include <lusb0_usb.h>
+#include <windows.h>
+#else
+#error Your OS is not supported. Please contact author.
+#endif
+
+#include <cstdio>
+#include <cstring>
 
 #define VERSION "1.1"
 #define VENDOR_ID 0x16c0
@@ -37,9 +38,11 @@ usb_dev_handle* setup_libusb_access() {
      if(!(lvr_winusb = find_lvr_winusb())) {
                 return NULL;
         }
-/* 
-Linux*/
-usb_detach_kernel_driver_np(lvr_winusb,0);
+
+#ifdef LIBUSB_HAS_DETACH_KERNEL_DRIVER_NP
+	usb_detach_kernel_driver_np(lvr_winusb,0);
+#endif
+
         if (usb_set_configuration(lvr_winusb, 1) < 0) {
                 printf("Could not set configuration 1 : \n");
                 return NULL;
