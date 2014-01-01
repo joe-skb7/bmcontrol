@@ -83,7 +83,7 @@ void USB_PAUSE(unsigned long long MS)
 
 void USB_BUF_CLEAR()
 {   //  очистка буферов приёма и передачи
-    for (int i=0; i<9; i++) { USB_BUFI[i]=0; USB_BUFO[i]=0; }
+    for (int i=0; i<8; i++) { USB_BUFI[i]=0; USB_BUFO[i]=0; }
 }
 
 bool USB_GET_FEATURE()
