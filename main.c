@@ -15,8 +15,8 @@
 
 #define VERSION "1.1"
 #define VENDOR_ID 0x16c0
-#define PRODUCT_ID 0x05df 
- 
+#define PRODUCT_ID 0x05df
+
 #define INTFACE 0
 #define ONEWIRE_REPEAT       5
 #define USB_REPEAT           5
@@ -26,7 +26,7 @@ uint64_t ONEWIRE_ROM[40];
 float ONEWIRE_TEMP[40];
 int ONEWIRE_COUNT;
 float T;
-    
+
 const static int timeout=5000; /* timeout in ms */
 
 usb_dev_handle *find_lvr_winusb();
@@ -49,7 +49,7 @@ usb_dev_handle* setup_libusb_access() {
                 printf("Could not set configuration 1 : \n");
                 return NULL;
         }
- 
+
         if (usb_claim_interface(lvr_winusb, INTFACE) < 0) {
                 printf("Could not claim interface: \n");
                 return NULL;
@@ -57,14 +57,14 @@ usb_dev_handle* setup_libusb_access() {
         return lvr_winusb;
  }
 
- usb_dev_handle *find_lvr_winusb() 
- 
+ usb_dev_handle *find_lvr_winusb()
+
  {
       struct usb_bus *bus;
          struct usb_device *dev;
          for (bus = usb_busses; bus; bus = bus->next) {
          for (dev = bus->devices; dev; dev = dev->next) {
-                        if (dev->descriptor.idVendor == VENDOR_ID && 
+                        if (dev->descriptor.idVendor == VENDOR_ID &&
                                 dev->descriptor.idProduct == PRODUCT_ID ) {
                                 usb_dev_handle *handle;
                                 if (!(handle = usb_open(dev))) {
@@ -110,7 +110,7 @@ bool USB_GET_FEATURE()
     bool RESULT=false;
     int i=USB_REPEAT;   //  число попыток
     while (!RESULT && i--)
-        try { 
+        try {
             RESULT = usb_control_msg(lvr_winusb, 0xA1, 0x01, 0x300, 0, (char *)USB_BUFI, 0x8, timeout);
         }
             catch (...) { RESULT=false; };
@@ -121,12 +121,12 @@ bool USB_GET_FEATURE()
     printf("\n");
 */
     return RESULT;
-} 
- 
+}
+
 bool USB_SET_FEATURE()
 {   //  запись из буфера в устройство
     bool RESULT=false;
-    try { 
+    try {
             RESULT = usb_control_msg(lvr_winusb, 0x21, 0x09, 0x300, 0, (char *)USB_BUFO, 0x8, timeout);
     }
         catch (...) { RESULT=false;  };
@@ -254,7 +254,7 @@ bool OW_RESET()
     bool RESULT=false;
     USB_BUF_CLEAR();
     USB_BUFO[0]=0x18;    USB_BUFO[1]=0x48;
-        
+
     unsigned char N=ONEWIRE_REPEAT;
 
     while (!RESULT && N--)
@@ -506,12 +506,12 @@ int set_port(int num, bool stat)
     if ((num==1)&(stat==1))  { PS=PS|0x08; ret = USB_SET_PORT(PS); }
     else if ((num==1)&(stat==0)) { PS=PS&0x10; ret = USB_SET_PORT(PS); }
     else if ((num==2)&(stat==1))  { PS=PS|0x10; ret = USB_SET_PORT(PS); }
-    else if ((num==2)&(stat==0)) { PS=PS&0x08; ret = USB_SET_PORT(PS); }             
+    else if ((num==2)&(stat==0)) { PS=PS&0x08; ret = USB_SET_PORT(PS); }
     if(!ret) return 0;
     printf("Status port changed\n");
     return 1;
 }
- 
+
 int device_info() {
 	int ret=0;
 	unsigned int SV,ID;
