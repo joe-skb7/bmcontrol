@@ -1,15 +1,17 @@
-CC = g++
-CFLAGS = -Wall
+APP = bmcontrol
+CXXFLAGS = -Wall
+LDFLAGS = -lusb
+OBJS = main.o
 
-all: bmcontrol
+default: $(APP)
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -c -I. -I/usr/include -o $@ $^ -lusb
+	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
+$(APP): $(OBJS)
+	$(CXX) -o $@ $^ $(LDFLAGS)
 
-bmcontrol: main.o
-	$(CC) -I/usr/include -L/usr/lib -o $@ $^ -lusb
+clean:
+	rm -f *.o $(APP)
 
-
-clean: 
-	rm -f *.o bmcontrol
+.PHONY: default $(APP) clean
