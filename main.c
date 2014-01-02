@@ -78,10 +78,23 @@ usb_dev_handle* setup_libusb_access() {
 
 usb_dev_handle *lvr_winusb = NULL;
 
-void USB_PAUSE(unsigned long long MS)
-{   //  MS - задержка в милисекундах
-    //  блокирует всё
-    usleep(MS * 1000);
+void USB_PAUSE(unsigned int msecs)
+{
+#if defined(__linux__)
+    struct timespec req;
+
+    req.tv_sec = msecs / 1000;
+    req.tv_nsec = (msecs % 1000) * 1000000;
+
+    if (nanosleep(&req, NULL) == -1) {
+        perror("Error occurred while sleeping");
+        exit(EXIT_FAILURE);
+    }
+#elif defined(_WIN32)
+	Sleep(msecs);
+#else
+#error Your OS is not supported. Please contact author.
+#endif
 }
 
 void USB_BUF_CLEAR()
