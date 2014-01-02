@@ -3,15 +3,25 @@ CXXFLAGS = --std=c++11 -Wall -pedantic
 LDFLAGS = -lusb
 OBJS = main.o
 
-default: $(APP)
+ifeq ($(OS),Windows_NT)
+	RM = del /Q
+	BIN = $(APP).exe
+else
+	ifeq ($(shell uname -s), Linux)
+		RM = rm -f
+		BIN = $(APP)
+	endif
+endif
+
+default: $(BIN)
 
 %.o: %.c
 	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-$(APP): $(OBJS)
+$(BIN): $(OBJS)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm -f *.o $(APP)
+	$(RM) *.o $(BIN)
 
-.PHONY: default $(APP) clean
+.PHONY: default clean
