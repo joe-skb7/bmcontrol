@@ -145,9 +145,10 @@ bool USB_GET_PORT(unsigned char &PS)
     int i=USB_REPEAT;   //  число попыток
     while (!RESULT & ((i--)>0))
         if (USB_SET_FEATURE())
-            if (USB_GET_FEATURE())
+            if (USB_GET_FEATURE()) {
                 if (USB_BUFI[0]==0x7E) { PS=USB_BUFI[1]; RESULT=USB_BUFI[2]==PS; }
-                    else RESULT=false;
+                else RESULT=false;
+            }
     if (!RESULT) printf("Error reading PORT\n");
     return RESULT;
 }
@@ -175,9 +176,10 @@ bool USB_GET_FAMILY(unsigned char &FAMILY)
     int i=USB_REPEAT;   //  число попыток
     while (!RESULT & ((i--)>0))
         if (USB_SET_FEATURE())
-            if (USB_GET_FEATURE())
+            if (USB_GET_FEATURE()) {
                 if (USB_BUFI[0]==0x1D) { RESULT=true; FAMILY=USB_BUFI[1]; }
-                    else RESULT=false;
+                else RESULT=false;
+            }
     if (!RESULT) printf("Error reading FAMILY\n");
     return RESULT;
 }
@@ -190,9 +192,10 @@ bool USB_GET_SOFTV(unsigned int &SV)
     int i=USB_REPEAT;   //  число попыток
     while (!RESULT & ((i--)>0))
         if (USB_SET_FEATURE())
-            if (USB_GET_FEATURE())
+            if (USB_GET_FEATURE()) {
                 if (USB_BUFI[0]==0x1D) { RESULT=true; SV=USB_BUFI[2]+(USB_BUFI[3]>>8); }
-                    else RESULT=false;
+                else RESULT=false;
+            }
     if (!RESULT) printf("Error reading firmware version\n");
     return RESULT;
 }
@@ -205,9 +208,10 @@ bool USB_GET_ID(unsigned int &ID)
     int i=USB_REPEAT;   //  число попыток
     while (!RESULT & ((i--)>0))
         if (USB_SET_FEATURE())
-            if (USB_GET_FEATURE())
+            if (USB_GET_FEATURE()) {
                 if (USB_BUFI[0]==0x1D) { RESULT=true; ID=(USB_BUFI[4]<<24)+(USB_BUFI[5]<<16)+(USB_BUFI[6]<<8)+USB_BUFI[7]; }
-                    else RESULT=false;
+                else RESULT=false;
+            }
     if (!RESULT) printf("Error reading device ID\n");
     return RESULT;
 }
@@ -246,7 +250,6 @@ bool USB_EE_WR(unsigned char ADR,unsigned  char DATA)
 bool OW_RESET()
 {   //  RESET, ~3ms
     bool RESULT=false;
-    int i;
     USB_BUF_CLEAR();
     USB_BUFO[0]=0x18;    USB_BUFO[1]=0x48;
         
@@ -374,7 +377,7 @@ bool OW_WRITE_4BYTE(unsigned long B)
         {
         USB_PAUSE(2);
         if (USB_GET_FEATURE())
-            RESULT=(USB_BUFI[0]==0x18)&(USB_BUFI[1]==0x84)&(USB_BUFI[2]==D0&(USB_BUFI[3]==D1)&(USB_BUFI[4]==D2)&(USB_BUFI[5]==D3));
+            RESULT=(USB_BUFI[0]==0x18)&(USB_BUFI[1]==0x84)&(USB_BUFI[2]==D0)&(USB_BUFI[3]==D1)&(USB_BUFI[4]==D2)&(USB_BUFI[5]==D3);
         }
     if (!RESULT) printf("Error OW_WRITE_4BYTE\n");
     return RESULT;
@@ -384,7 +387,7 @@ unsigned char CRC8(unsigned char CRC, unsigned char D)
 {   //  подчсёт CRC для DALLAS
     unsigned char R=CRC;
     for (int i=0; i<8; i++)
-        if ((R^(D>>i))&0x01==0x01) R=((R^0x18)>>1)|0x80;
+        if (((R^(D>>i))&0x01)==0x01) R=((R^0x18)>>1)|0x80;
             else R=(R>>1)&0x7F;
     return R;
 }
@@ -458,7 +461,7 @@ bool SEARCH_ROM(unsigned long long ROM_NEXT, int PL)
         if (OW_RESET()) RESULT=OW_WRITE_BYTE(0xF0);
         if (RESULT)
             for (int i=0; i<64; i++)
-                if (RESULT)
+                if (RESULT) {
                     if (OW_READ_2BIT(BIT))
                         switch (BIT&0x03)
                             {
@@ -474,7 +477,8 @@ bool SEARCH_ROM(unsigned long long ROM_NEXT, int PL)
                             case 2 : { if (!OW_WRITE_BIT(0x00)) { RESULT=false; i=64; } break;}
                             case 3 : { RESULT=false; i=64; break;}   //  нет на линии
                             }
-                        else { RESULT=false; i=64; }
+                    else { RESULT=false; i=64; }
+                }
         if (ROM==0) RESULT=false;
         if (RESULT) { CRC=0; for (int j=0; j<8; j++) CRC=CRC8(CRC, (ROM>>(j*8))&0xFF); RESULT=CRC==0; }
         }
@@ -534,7 +538,6 @@ bool GET_TEMPERATURE(unsigned long long ROM, float &T)
 
 int read_ports()
  {
-	int ret=0;
     unsigned char PS;
     if(USB_GET_PORT(PS)) {
         if((PS==8)|(PS==24)) printf("Port1 is on\n");
@@ -548,13 +551,11 @@ int read_ports()
 
 int set_port(int num, bool stat)
  {
-    unsigned char PS, PS_OLD;
+    unsigned char PS;
     bool ret = 0;
 
-    if (USB_GET_PORT(PS))
-        {   //  удалость прочитать
-        PS_OLD=PS;
-        } else { printf("Error USB_GET_PORT\n"); return 0; }
+    if (!USB_GET_PORT(PS))
+        { printf("Error USB_GET_PORT\n"); return 0; }
     //  включение / выключение
     if ((num==1)&(stat==1))  { PS=PS|0x08; ret = USB_SET_PORT(PS); }
     else if ((num==1)&(stat==0)) { PS=PS&0x10; ret = USB_SET_PORT(PS); }
@@ -579,11 +580,12 @@ int device_info() {
 }
 
 int scan() {
-    int ret;
-    ret = SEARCH_ROM(0, 0);
+    SEARCH_ROM(0, 0);
+
     for(int i=1;i<=ONEWIRE_COUNT;i++) {
-            printf("temp_id%d = %x",i, (ONEWIRE_ROM[i-1]>>32)&0xFFFFFFFF);
-            printf("%x\n",ONEWIRE_ROM[i-1]&0xFFFFFFFF);
+            printf("temp_id%d = %x%x\n", i,
+                (unsigned int)(ONEWIRE_ROM[i-1]>>32)&0xFFFFFFFF,
+                (unsigned int)ONEWIRE_ROM[i-1]&0xFFFFFFFF);
     }
     return 1;
 }
@@ -595,6 +597,7 @@ int temp(unsigned long long ROM) {
     SKIP_ROM_CONVERT();
     ret = GET_TEMPERATURE(ONEWIRE_ROM[0], T);
     if(ret) printf("%f\n",T);
+    return ret;
 }
 
 int ports_save() {
@@ -648,8 +651,6 @@ int main( int argc, char **argv)
 {
     lvr_winusb = setup_libusb_access();
 
-        char buf;
-   
         if(argc==1) {
             printf("Temperature sensor BM1707 control v1.1\n");
             if(lvr_winusb!=NULL) {
@@ -668,17 +669,16 @@ int main( int argc, char **argv)
             printf("   delay <5-255>                 Set delay time of device before power save\n");
         }
         else if(lvr_winusb!=NULL){
-             if(strcmp(argv[1],"ports") == 0) buf = read_ports();
+             if(strcmp(argv[1],"ports") == 0) read_ports();
              else if(strcmp(argv[1],"info") == 0) device_info();
              else if(strcmp(argv[1],"scan") == 0) scan();
              else if(strcmp(argv[1],"psave") == 0) ports_save();
              else if((strcmp(argv[1],"temp") == 0)&&(argv[2])) {
-                  long unsigned rom1=0, rom2=0;
                   long long unsigned rom=0;
                   rom = HexStringToUInt(argv[2]);
                   temp(rom);
              }
-             else if((strcmp(argv[1],"pset") == 0)&(argc==4)) buf = set_port(atoi((const char*) argv[2]), (bool) atoi((const char*) argv[3]));
+             else if((strcmp(argv[1],"pset") == 0)&(argc==4)) set_port(atoi((const char*) argv[2]), (bool) atoi((const char*) argv[3]));
              else if((strcmp(argv[1],"delay") == 0)&(argc==2)) delay_get();
              else if((strcmp(argv[1],"delay") == 0)&(argc==3)) delay_set( atoi(argv[2]));
              else printf("Wrong command %s.\n", argv[1]);
