@@ -14,7 +14,7 @@
 
 enum { BILLION = 1000 * 1000 * 1000 };
 
-static bool initialized;
+static int initialized;
 static double ticks_per_nanosecond;
 
 static void init_ticks_per_nsec(void)
@@ -25,7 +25,7 @@ static void init_ticks_per_nsec(void)
 		ticks_per_nanosecond = (double)ticks_per_second.QuadPart
 				/ 1000000000.0;
 
-	initialized = true;
+	initialized = 1;
 }
 
 /*
