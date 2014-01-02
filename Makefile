@@ -6,6 +6,7 @@ OBJS = main.o
 ifeq ($(OS),Windows_NT)
 	RM = del /Q
 	BIN = $(APP).exe
+	CXXFLAGS += -Wno-pedantic-ms-format
 else
 	ifeq ($(shell uname -s), Linux)
 		RM = rm -f
