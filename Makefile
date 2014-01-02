@@ -6,7 +6,6 @@ OBJS = main.o
 ifeq ($(OS),Windows_NT)
 	RM = del /Q
 	BIN = $(APP).exe
-	CFLAGS += -Wno-pedantic-ms-format
 	OBJS += nanosleep_win32.o
 else
 	ifeq ($(shell uname -s), Linux)

@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-#include <inttypes.h>
 #include <time.h>
 
 typedef enum { false, true } bool;
@@ -550,8 +549,12 @@ int scan() {
 
     SEARCH_ROM(0, 0);
 
-    for(i=1;i<=ONEWIRE_COUNT;i++)
-        printf("temp_id%d = %" PRIu64 "\n", i, ONEWIRE_ROM[i-1]);
+    for(i=1;i<=ONEWIRE_COUNT;i++) {
+            printf("temp_id%d = %x%x\n", i,
+                (unsigned)((ONEWIRE_ROM[i-1] >> 32) & 0xFFFFFFFF),
+                (unsigned)(ONEWIRE_ROM[i-1] & 0xFFFFFFFF));
+    }
+
     return 1;
 }
 
