@@ -7,6 +7,7 @@ ifeq ($(OS),Windows_NT)
 	RM = del /Q
 	BIN = $(APP).exe
 	CXXFLAGS += -Wno-pedantic-ms-format
+	OBJS += nanosleep_win32.o
 else
 	ifeq ($(shell uname -s), Linux)
 		RM = rm -f

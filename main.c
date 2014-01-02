@@ -1,9 +1,8 @@
 #if defined(__linux__)
 #include <usb.h>
-#include <ctime>
 #elif defined(_WIN32)
 #include <lusb0_usb.h>
-#include <windows.h>
+#include "nanosleep_win32.h"
 #else
 #error Your OS is not supported. Please contact author.
 #endif
@@ -12,6 +11,7 @@
 #include <cstring>
 #include <cstdint>
 #include <cinttypes>
+#include <ctime>
 
 #define VERSION "1.1"
 #define VENDOR_ID 0x16c0
@@ -82,7 +82,6 @@ usb_dev_handle *lvr_winusb = NULL;
 
 void USB_PAUSE(unsigned int msecs)
 {
-#if defined(__linux__)
     struct timespec req;
 
     req.tv_sec = msecs / 1000;
@@ -92,11 +91,6 @@ void USB_PAUSE(unsigned int msecs)
         perror("Error occurred while sleeping");
         exit(EXIT_FAILURE);
     }
-#elif defined(_WIN32)
-	Sleep(msecs);
-#else
-#error Your OS is not supported. Please contact author.
-#endif
 }
 
 void USB_BUF_CLEAR()
