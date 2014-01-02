@@ -1,0 +1,38 @@
+Building on Linux
+-----------------
+
+Dependencies:
+ - libusb-0.1-4
+ - libusb-dev
+
+Building:
+$ make
+
+
+Building on Windows
+-------------------
+
+Dependencies:
+ - MinGW
+ - libusb-win32
+
+Installing MinGW:
+ - next packages need to be installed:
+   * mingw32-base
+   * mingw32-gcc-g++
+ - add "C:\MinGW\bin" to your "PATH" environment variable
+
+Installing libusb-win32:
+ - obtain last version of "libusb-win32-bin-x.x.x.x.zip" archive from
+   http://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/
+   (1.2.6.0 was latest when this file had written)
+ - install driver like it described here:
+   http://sourceforge.net/apps/trac/libusb-win32/wiki
+   (see "Device Driver Installation" section)
+ - copy next files from obtrained archive as follows:
+   * bin\x86\x86/libusb0.dll -> C:\MinGW\bin
+   * include\lusb0_usb.h -> C:\MinGW\include
+   * lib\gcc\libusb.a -> C:\MinGW\lib
+
+Building:
+% mingw32-make
