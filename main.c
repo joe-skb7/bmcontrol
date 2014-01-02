@@ -107,7 +107,7 @@ bool USB_GET_FEATURE()
 
     bool RESULT=false;
     int i=USB_REPEAT;   //  число попыток
-    while (!RESULT & ((i--)>0))
+    while (!RESULT && i--)
         try { 
             RESULT = usb_control_msg(lvr_winusb, 0xA1, 0x01, 0x300, 0, (char *)USB_BUFI, 0x8, timeout);
         }
@@ -143,7 +143,7 @@ bool USB_GET_PORT(unsigned char &PS)
     bool RESULT=false;
     USB_BUFO[0]=0x7E;
     int i=USB_REPEAT;   //  число попыток
-    while (!RESULT & ((i--)>0))
+    while (!RESULT && i--)
         if (USB_SET_FEATURE())
             if (USB_GET_FEATURE()) {
                 if (USB_BUFI[0]==0x7E) { PS=USB_BUFI[1]; RESULT=USB_BUFI[2]==PS; }
@@ -160,7 +160,7 @@ bool USB_SET_PORT(unsigned char PS)
     USB_BUFO[0]=0xE7;
     USB_BUFO[1]=PS;
     int i=USB_REPEAT;   //  число попыток
-    while (!RESULT & ((i--)>0))
+    while (!RESULT && i--)
         if (USB_SET_FEATURE())
             if (USB_GET_FEATURE())
                  { RESULT=(USB_BUFI[0]==0xE7)&(USB_BUFI[1]==PS)&(USB_BUFI[2]==PS); }
@@ -174,7 +174,7 @@ bool USB_GET_FAMILY(unsigned char &FAMILY)
     bool RESULT=false;
     USB_BUFO[0]=0x1D;
     int i=USB_REPEAT;   //  число попыток
-    while (!RESULT & ((i--)>0))
+    while (!RESULT && i--)
         if (USB_SET_FEATURE())
             if (USB_GET_FEATURE()) {
                 if (USB_BUFI[0]==0x1D) { RESULT=true; FAMILY=USB_BUFI[1]; }
@@ -190,7 +190,7 @@ bool USB_GET_SOFTV(unsigned int &SV)
     bool RESULT=false;
     USB_BUFO[0]=0x1D;
     int i=USB_REPEAT;   //  число попыток
-    while (!RESULT & ((i--)>0))
+    while (!RESULT && i--)
         if (USB_SET_FEATURE())
             if (USB_GET_FEATURE()) {
                 if (USB_BUFI[0]==0x1D) { RESULT=true; SV=USB_BUFI[2]+(USB_BUFI[3]>>8); }
@@ -206,7 +206,7 @@ bool USB_GET_ID(unsigned int &ID)
     bool RESULT=false;
     USB_BUFO[0]=0x1D;
     int i=USB_REPEAT;   //  число попыток
-    while (!RESULT & ((i--)>0))
+    while (!RESULT && i--)
         if (USB_SET_FEATURE())
             if (USB_GET_FEATURE()) {
                 if (USB_BUFI[0]==0x1D) { RESULT=true; ID=(USB_BUFI[4]<<24)+(USB_BUFI[5]<<16)+(USB_BUFI[6]<<8)+USB_BUFI[7]; }
@@ -223,7 +223,7 @@ bool USB_EE_RD(unsigned char ADR,unsigned  char &DATA)
     USB_BUFO[0]=0xE0;
     USB_BUFO[1]=ADR;
     int i=USB_REPEAT;   //  число попыток
-    while (!RESULT & ((i--)>0))
+    while (!RESULT && i--)
         if (USB_SET_FEATURE())
             if (USB_GET_FEATURE()) { RESULT=(USB_BUFI[0]==0xE0)&(USB_BUFI[1]==ADR); DATA=USB_BUFI[2]; }
     if (!RESULT) printf("Error reading EEPROM\n");
@@ -237,7 +237,7 @@ bool USB_EE_WR(unsigned char ADR,unsigned  char DATA)
     USB_BUFO[0]=0x0E;
     USB_BUFO[1]=ADR;    USB_BUFO[2]=DATA;
     int i=USB_REPEAT;   //  число попыток
-    while (!RESULT & ((i--)>0))
+    while (!RESULT && i--)
         if (USB_SET_FEATURE())
             {
             USB_PAUSE(15);   //  на запись в EEPROM
@@ -255,7 +255,7 @@ bool OW_RESET()
         
     unsigned char N=ONEWIRE_REPEAT;
 
-    while (!RESULT &((N--)>0))
+    while (!RESULT && N--)
         if (USB_SET_FEATURE())
             {
             USB_PAUSE(1);
@@ -398,7 +398,7 @@ bool READ_ROM(unsigned long long &ROM64)
     unsigned long B;
     unsigned char N=ONEWIRE_REPEAT;
     unsigned long long T, CRC;
-    while (!RESULT&((N--)>0))
+    while (!RESULT && N--)
         if (OW_RESET())
             if (OW_WRITE_BYTE(0x33))
                 {   //  чтение 64 бит
@@ -428,7 +428,7 @@ bool MATCH_ROM(unsigned long long ROM)
     bool RESULT=false;
     unsigned long long T=ROM;
     unsigned char N=ONEWIRE_REPEAT;
-    while (!RESULT&((N--)>0))
+    while (!RESULT && N--)
         if (OW_RESET())
             if (OW_WRITE_BYTE(0x55))
                 if (OW_WRITE_4BYTE(T&0xFFFFFFFF))
@@ -441,7 +441,7 @@ bool SKIP_ROM()
 {   //  пропуск ROM-команд, 6ms
     bool RESULT=false;
     unsigned char N=ONEWIRE_REPEAT;
-    while (!RESULT&((N--)>0))
+    while (!RESULT && N--)
         if (OW_RESET()) RESULT=OW_WRITE_BYTE(0xCC);
     if (!RESULT) printf("Error SKIP_ROM\n");
     return RESULT;
@@ -455,7 +455,7 @@ bool SEARCH_ROM(unsigned long long ROM_NEXT, int PL)
     bool CL[64]; for (int i=0; i<64; i++) CL[i]=false;
     unsigned long long RL[64];
     unsigned long long B1=1, CRC, ROM;
-    while (!RESULT&((N--)>0))
+    while (!RESULT && N--)
         {
         ROM=0;
         if (OW_RESET()) RESULT=OW_WRITE_BYTE(0xF0);
@@ -494,7 +494,7 @@ bool SKIP_ROM_CONVERT()
 {   //  пропуск ROM-команд, старт измерения температуры, 9ms
     bool RESULT=false;
     unsigned char N=ONEWIRE_REPEAT;
-    while (!RESULT&((N--)>0))
+    while (!RESULT && N--)
         if (OW_RESET())
             if (OW_WRITE_BYTE(0xCC))
                 RESULT=OW_WRITE_BYTE(0x44);
@@ -510,7 +510,7 @@ bool GET_TEMPERATURE(unsigned long long ROM, float &T)
     unsigned char FAMILY=ROM&0xFF;
     bool RESULT=false;
     unsigned char N=ONEWIRE_REPEAT;
-    while (!RESULT&((N--)>0))
+    while (!RESULT && N--)
         if (MATCH_ROM(ROM))
             if (OW_WRITE_BYTE(0xBE))
                     if (OW_READ_4BYTE(L1))
