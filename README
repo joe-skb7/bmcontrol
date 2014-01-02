@@ -8,6 +8,9 @@ Dependencies:
 Building:
 $ make
 
+Installation:
+$ sudo make install
+
 
 Building on Windows
 -------------------
@@ -36,3 +39,6 @@ Installing libusb-win32:
 
 Building:
 % mingw32-make
+
+Installation:
+% mingw32-make install
