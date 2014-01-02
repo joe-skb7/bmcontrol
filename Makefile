@@ -1,5 +1,5 @@
 APP = bmcontrol
-CXXFLAGS = --std=c++11 -Wall -pedantic
+CXXFLAGS = --std=c++11 -Wall -pedantic -O2 -s
 LDFLAGS = -lusb
 OBJS = main.o
 
