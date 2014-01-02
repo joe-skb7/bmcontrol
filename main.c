@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdint>
+#include <cinttypes>
 
 #define VERSION "1.1"
 #define VENDOR_ID 0x16c0
@@ -527,11 +528,8 @@ int device_info() {
 int scan() {
     SEARCH_ROM(0, 0);
 
-    for(int i=1;i<=ONEWIRE_COUNT;i++) {
-            printf("temp_id%d = %x%x\n", i,
-                (unsigned int)(ONEWIRE_ROM[i-1]>>32)&0xFFFFFFFF,
-                (unsigned int)ONEWIRE_ROM[i-1]&0xFFFFFFFF);
-    }
+    for(int i=1;i<=ONEWIRE_COUNT;i++)
+        printf("temp_id%d = %" PRIu64 "\n", i, ONEWIRE_ROM[i-1]);
     return 1;
 }
 
