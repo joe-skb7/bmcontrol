@@ -7,11 +7,13 @@
 #error Your OS is not supported. Please contact author.
 #endif
 
-#include <cstdio>
-#include <cstring>
-#include <cstdint>
-#include <cinttypes>
-#include <ctime>
+#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+#include <inttypes.h>
+#include <time.h>
+
+typedef enum { false, true } bool;
 
 #define VERSION "1.1"
 #define VENDOR_ID 0x16c0
@@ -93,21 +95,21 @@ void USB_PAUSE(unsigned int msecs)
     }
 }
 
+/* очистка буферов приёма и передачи */
 void USB_BUF_CLEAR()
-{   //  очистка буферов приёма и передачи
-    for (int i=0; i<8; i++) { USB_BUFI[i]=0; USB_BUFO[i]=0; }
+{
+	int i;
+
+    for (i=0; i<8; i++) { USB_BUFI[i]=0; USB_BUFO[i]=0; }
 }
 
-bool USB_GET_FEATURE()
-{   //  чтение в буфер из устройства
-
-    bool RESULT=false;
-    int i=USB_REPEAT;   //  число попыток
+/* чтение в буфер из устройства */
+int USB_GET_FEATURE()
+{
+    int RESULT = 0;
+    int i=USB_REPEAT;   /*  число попыток */
     while (!RESULT && i--)
-        try {
             RESULT = usb_control_msg(lvr_winusb, 0xA1, 0x01, 0x300, 0, (char *)USB_BUFI, 0x8, timeout);
-        }
-            catch (...) { RESULT=false; };
     if (!RESULT) printf("Error reading from device\n");
 /*
     printf("read ");
@@ -117,13 +119,11 @@ bool USB_GET_FEATURE()
     return RESULT;
 }
 
-bool USB_SET_FEATURE()
-{   //  запись из буфера в устройство
-    bool RESULT=false;
-    try {
+/* запись из буфера в устройство */
+int USB_SET_FEATURE()
+{
+    int RESULT=0;
             RESULT = usb_control_msg(lvr_winusb, 0x21, 0x09, 0x300, 0, (char *)USB_BUFO, 0x8, timeout);
-    }
-        catch (...) { RESULT=false;  };
     if (!RESULT) printf("Error writing to device\n");
 /*
     printf("write ");
@@ -133,29 +133,33 @@ bool USB_SET_FEATURE()
     return RESULT;
 }
 
-bool USB_GET_PORT(unsigned char &PS)
-{   //  чтение состояния порта, 2ms
-    USB_BUF_CLEAR();
+/* чтение состояния порта, 2ms */
+bool USB_GET_PORT(unsigned char *PS)
+{
     bool RESULT=false;
+    int i=USB_REPEAT;   /* число попыток */
+
+    USB_BUF_CLEAR();
     USB_BUFO[0]=0x7E;
-    int i=USB_REPEAT;   //  число попыток
     while (!RESULT && i--)
         if (USB_SET_FEATURE())
             if (USB_GET_FEATURE()) {
-                if (USB_BUFI[0]==0x7E) { PS=USB_BUFI[1]; RESULT=USB_BUFI[2]==PS; }
+                if (USB_BUFI[0]==0x7E) { *PS=USB_BUFI[1]; RESULT=USB_BUFI[2]==*PS; }
                 else RESULT=false;
             }
     if (!RESULT) printf("Error reading PORT\n");
     return RESULT;
 }
 
+/* запись состояния порта, 2ms */
 bool USB_SET_PORT(unsigned char PS)
-{   //  запись состояния порта, 2ms
-    USB_BUF_CLEAR();
+{
     bool RESULT=false;
+    int i=USB_REPEAT;   /* число попыток */
+
+    USB_BUF_CLEAR();
     USB_BUFO[0]=0xE7;
     USB_BUFO[1]=PS;
-    int i=USB_REPEAT;   //  число попыток
     while (!RESULT && i--)
         if (USB_SET_FEATURE())
             if (USB_GET_FEATURE())
@@ -164,92 +168,104 @@ bool USB_SET_PORT(unsigned char PS)
     return RESULT;
 }
 
-bool USB_GET_FAMILY(unsigned char &FAMILY)
-{   //  чтение группового кода устройства, 2ms
-    USB_BUF_CLEAR();
+/* чтение группового кода устройства, 2ms */
+bool USB_GET_FAMILY(unsigned char *FAMILY)
+{
     bool RESULT=false;
+    int i=USB_REPEAT;   /* число попыток */
+
+    USB_BUF_CLEAR();
     USB_BUFO[0]=0x1D;
-    int i=USB_REPEAT;   //  число попыток
     while (!RESULT && i--)
         if (USB_SET_FEATURE())
             if (USB_GET_FEATURE()) {
-                if (USB_BUFI[0]==0x1D) { RESULT=true; FAMILY=USB_BUFI[1]; }
+                if (USB_BUFI[0]==0x1D) { RESULT=true; *FAMILY=USB_BUFI[1]; }
                 else RESULT=false;
             }
     if (!RESULT) printf("Error reading FAMILY\n");
     return RESULT;
 }
 
-bool USB_GET_SOFTV(unsigned int &SV)
-{   //  чтение номера версии прошивки, 2ms
-    USB_BUF_CLEAR();
+/* чтение номера версии прошивки, 2ms */
+bool USB_GET_SOFTV(unsigned int *SV)
+{
     bool RESULT=false;
+    int i=USB_REPEAT;   /* число попыток */
+
+    USB_BUF_CLEAR();
     USB_BUFO[0]=0x1D;
-    int i=USB_REPEAT;   //  число попыток
     while (!RESULT && i--)
         if (USB_SET_FEATURE())
             if (USB_GET_FEATURE()) {
-                if (USB_BUFI[0]==0x1D) { RESULT=true; SV=USB_BUFI[2]+(USB_BUFI[3]>>8); }
+                if (USB_BUFI[0]==0x1D) { RESULT=true; *SV=USB_BUFI[2]+(USB_BUFI[3]>>8); }
                 else RESULT=false;
             }
     if (!RESULT) printf("Error reading firmware version\n");
     return RESULT;
 }
 
-bool USB_GET_ID(unsigned int &ID)
-{   //  чтение ID устройства, 2ms
-    USB_BUF_CLEAR();
+/* чтение ID устройства, 2ms */
+bool USB_GET_ID(unsigned int *ID)
+{
     bool RESULT=false;
+    int i=USB_REPEAT;   /* число попыток */
+
+    USB_BUF_CLEAR();
     USB_BUFO[0]=0x1D;
-    int i=USB_REPEAT;   //  число попыток
     while (!RESULT && i--)
         if (USB_SET_FEATURE())
             if (USB_GET_FEATURE()) {
-                if (USB_BUFI[0]==0x1D) { RESULT=true; ID=(USB_BUFI[4]<<24)+(USB_BUFI[5]<<16)+(USB_BUFI[6]<<8)+USB_BUFI[7]; }
+                if (USB_BUFI[0]==0x1D) { RESULT=true; *ID=(USB_BUFI[4]<<24)+(USB_BUFI[5]<<16)+(USB_BUFI[6]<<8)+USB_BUFI[7]; }
                 else RESULT=false;
             }
     if (!RESULT) printf("Error reading device ID\n");
     return RESULT;
 }
 
-bool USB_EE_RD(unsigned char ADR,unsigned  char &DATA)
-{   //  чтение EEPROM
-    USB_BUF_CLEAR();
+/* чтение EEPROM */
+bool USB_EE_RD(unsigned char ADR, unsigned char *DATA)
+{
     bool RESULT=false;
+    int i=USB_REPEAT;   /* число попыток */
+
+    USB_BUF_CLEAR();
     USB_BUFO[0]=0xE0;
     USB_BUFO[1]=ADR;
-    int i=USB_REPEAT;   //  число попыток
     while (!RESULT && i--)
         if (USB_SET_FEATURE())
-            if (USB_GET_FEATURE()) { RESULT=(USB_BUFI[0]==0xE0)&(USB_BUFI[1]==ADR); DATA=USB_BUFI[2]; }
+            if (USB_GET_FEATURE()) { RESULT=(USB_BUFI[0]==0xE0)&(USB_BUFI[1]==ADR); *DATA=USB_BUFI[2]; }
     if (!RESULT) printf("Error reading EEPROM\n");
     return RESULT;
 }
 
+/* запись EEPROM, 17ms */
 bool USB_EE_WR(unsigned char ADR,unsigned  char DATA)
-{   //  запись EEPROM, 17ms
-    USB_BUF_CLEAR();
+{
     bool RESULT=false;
+    int i=USB_REPEAT;   /* число попыток */
+
+    USB_BUF_CLEAR();
     USB_BUFO[0]=0x0E;
     USB_BUFO[1]=ADR;    USB_BUFO[2]=DATA;
-    int i=USB_REPEAT;   //  число попыток
     while (!RESULT && i--)
         if (USB_SET_FEATURE())
             {
-            USB_PAUSE(15);   //  на запись в EEPROM
+            USB_PAUSE(15); /* на запись в EEPROM */
             if (USB_GET_FEATURE()) RESULT=(USB_BUFI[0]==0x0E)&(USB_BUFI[1]==ADR)&(USB_BUFI[2]==DATA);
             } else RESULT=false;
     if (!RESULT) printf("Error writing EEPROM\n");
     return RESULT;
 }
 
+/* RESET, ~3ms */
 bool OW_RESET()
-{   //  RESET, ~3ms
+{
     bool RESULT=false;
+    unsigned char N=ONEWIRE_REPEAT;
+
     USB_BUF_CLEAR();
     USB_BUFO[0]=0x18;    USB_BUFO[1]=0x48;
 
-    unsigned char N=ONEWIRE_REPEAT;
 
     while (!RESULT && N--)
         if (USB_SET_FEATURE())
@@ -264,9 +280,9 @@ bool OW_RESET()
     return RESULT;
 }
 
-bool OW_READ_2BIT(unsigned char &B)
-{   //  чтение 2-x бит, 3ms
-    bool RESULT=false;
+/* чтение 2-x бит, 3ms */
+bool OW_READ_2BIT(unsigned char *B)
+{    bool RESULT=false;
     USB_BUF_CLEAR();
     USB_BUFO[0]=0x18;    USB_BUFO[1]=0x82;
     USB_BUFO[2]=0x01;    USB_BUFO[3]=0x01;
@@ -274,30 +290,30 @@ bool OW_READ_2BIT(unsigned char &B)
         {
         USB_PAUSE(1);
         if (USB_GET_FEATURE())
-            { RESULT=(USB_BUFI[0]==0x18)&(USB_BUFI[1]==0x82); B=(USB_BUFI[2]&0x01)+((USB_BUFI[3]<<1)&0x02); }
+            { RESULT=(USB_BUFI[0]==0x18)&(USB_BUFI[1]==0x82); *B=(USB_BUFI[2]&0x01)+((USB_BUFI[3]<<1)&0x02); }
         }
     if (!RESULT) printf("Error OW_READ_2BIT\n");
     return RESULT;
 }
 
-bool OW_READ_BYTE(unsigned char &B)
-{   //  чтение байта, 3ms
-    bool RESULT=false;
+/* чтение байта, 3ms */
+bool OW_READ_BYTE(unsigned char *B)
+{    bool RESULT=false;
     USB_BUF_CLEAR();
     USB_BUFO[0]=0x18;    USB_BUFO[1]=0x88;    USB_BUFO[2]=0xFF;
     if (USB_SET_FEATURE())
         {
         USB_PAUSE(1);
         if (USB_GET_FEATURE())
-            { RESULT=(USB_BUFI[0]==0x18)&(USB_BUFI[1]==0x88); B=USB_BUFI[2]; }
+            { RESULT=(USB_BUFI[0]==0x18)&(USB_BUFI[1]==0x88); *B=USB_BUFI[2]; }
         }
     if (!RESULT) printf("Error OW_READ_BYTE\n");
     return RESULT;
 }
 
-bool OW_READ_4BYTE(unsigned long &B)
-{   //  чтение 4 байта, 4ms
-    bool RESULT=false;
+/* чтение 4 байта, 4ms */
+bool OW_READ_4BYTE(unsigned long *B)
+{    bool RESULT=false;
     USB_BUF_CLEAR();
     USB_BUFO[0]=0x18;    USB_BUFO[1]=0x84;    USB_BUFO[2]=0xFF;
     USB_BUFO[3]=0xFF;    USB_BUFO[4]=0xFF;    USB_BUFO[5]=0xFF;
@@ -305,15 +321,15 @@ bool OW_READ_4BYTE(unsigned long &B)
         {
         USB_PAUSE(2);
         if (USB_GET_FEATURE())
-            { RESULT=(USB_BUFI[0]==0x18)&(USB_BUFI[1]==0x84); B=USB_BUFI[2]+(USB_BUFI[3]<<8)+(USB_BUFI[4]<<16)+(USB_BUFI[5]<<24); }
+            { RESULT=(USB_BUFI[0]==0x18)&(USB_BUFI[1]==0x84); *B=USB_BUFI[2]+(USB_BUFI[3]<<8)+(USB_BUFI[4]<<16)+(USB_BUFI[5]<<24); }
         }
     if (!RESULT) printf("Error OW_READ_4BYTE\n");
     return RESULT;
 }
 
+/* запись бита, 3ms */
 bool OW_WRITE_BIT(unsigned char B)
-{   //  запись бита, 3ms
-    bool RESULT=false;
+{    bool RESULT=false;
     USB_BUF_CLEAR();
     USB_BUFO[0]=0x18;    USB_BUFO[1]=0x81;    USB_BUFO[2]=B&0x01;
     if (USB_SET_FEATURE())
@@ -326,9 +342,9 @@ bool OW_WRITE_BIT(unsigned char B)
     return RESULT;
 }
 
+/* запись байта, 3ms */
 bool OW_WRITE_BYTE(unsigned char B)
-{   //  запись байта, 3ms
-    bool RESULT=false;
+{    bool RESULT=false;
     USB_BUF_CLEAR();
     USB_BUFO[0]=0x18;    USB_BUFO[1]=0x88;    USB_BUFO[2]=B;
     if (USB_SET_FEATURE())
@@ -341,9 +357,9 @@ bool OW_WRITE_BYTE(unsigned char B)
     return RESULT;
 }
 
+/* запись 4 байта, 4ms */
 bool OW_WRITE_4BYTE(unsigned long B)
-{   //  запись 4 байта, 4ms
-    bool RESULT=false;
+{    bool RESULT=false;
     unsigned char D0, D1, D2, D3;
     D0=B&0xFF;
     D1=(B>>8) &0xFF;
@@ -364,18 +380,20 @@ bool OW_WRITE_4BYTE(unsigned long B)
     return RESULT;
 }
 
+/* подчсёт CRC для DALLAS */
 unsigned char CRC8(unsigned char CRC, unsigned char D)
-{   //  подчсёт CRC для DALLAS
-    unsigned char R=CRC;
-    for (int i=0; i<8; i++)
+{    unsigned char R=CRC;
+     int i;
+
+    for (i=0; i<8; i++)
         if (((R^(D>>i))&0x01)==0x01) R=((R^0x18)>>1)|0x80;
             else R=(R>>1)&0x7F;
     return R;
 }
 
+/* выбор прибора по ROM, 14ms */
 bool MATCH_ROM(uint64_t ROM)
-{   //  выбор прибора по ROM, 14ms
-    bool RESULT=false;
+{    bool RESULT=false;
     uint64_t T=ROM;
     unsigned char N=ONEWIRE_REPEAT;
     while (!RESULT && N--)
@@ -387,26 +405,30 @@ bool MATCH_ROM(uint64_t ROM)
     return RESULT;
 }
 
+/* поиск ROM, 1 dev - 410ms, 5 dev - 2.26s, 20 dev - 8.89s */
 bool SEARCH_ROM(uint64_t ROM_NEXT, int PL)
-{   //  поиск ROM, 1 dev - 410ms, 5 dev - 2.26s, 20 dev - 8.89s
-    bool RESULT=false;
+{    bool RESULT=false;
     unsigned char N=ONEWIRE_REPEAT;
     unsigned char BIT;
-    bool CL[64]; for (int i=0; i<64; i++) CL[i]=false;
+    bool CL[64];
+    int i;
     uint64_t RL[64];
     uint64_t B1=1, CRC, ROM;
+
+    for (i=0; i<64; i++) CL[i]=false;
+
     while (!RESULT && N--)
         {
         ROM=0;
         if (OW_RESET()) RESULT=OW_WRITE_BYTE(0xF0);
         if (RESULT)
-            for (int i=0; i<64; i++)
+            for (i=0; i<64; i++)
                 if (RESULT) {
-                    if (OW_READ_2BIT(BIT))
+                    if (OW_READ_2BIT(&BIT))
                         switch (BIT&0x03)
                             {
                             case 0 :
-                                {   //  коллизия есть
+                                {   /* коллизия есть */
                                 if (PL<i) {CL[i]=true; RL[i]=ROM;}
                                 if (PL>=i) BIT=(ROM_NEXT>>i)&0x01; else BIT=0;
                                 if(!OW_WRITE_BIT(BIT)) { RESULT=false; i=64; }
@@ -415,24 +437,24 @@ bool SEARCH_ROM(uint64_t ROM_NEXT, int PL)
                                 }
                             case 1 : { if (!OW_WRITE_BIT(0x01)) { RESULT=false; i=64; } else ROM=ROM+(B1<<i); break;}
                             case 2 : { if (!OW_WRITE_BIT(0x00)) { RESULT=false; i=64; } break;}
-                            case 3 : { RESULT=false; i=64; break;}   //  нет на линии
+                            case 3 : { RESULT=false; i=64; break;}   /* нет на линии */
                             }
                     else { RESULT=false; i=64; }
                 }
         if (ROM==0) RESULT=false;
-        if (RESULT) { CRC=0; for (int j=0; j<8; j++) CRC=CRC8(CRC, (ROM>>(j*8))&0xFF); RESULT=CRC==0; }
+        if (RESULT) { int j; CRC=0; for (j=0; j<8; j++) CRC=CRC8(CRC, (ROM>>(j*8))&0xFF); RESULT=CRC==0; }
         }
     if (!RESULT) printf("Error SEARCH_ROM\n");
         else ONEWIRE_ROM[ONEWIRE_COUNT++]=ROM;
-    //  рекурентный вызов поиска
-    for (int i=0; i<64; i++)
+    /* рекурентный вызов поиска */
+    for (i=0; i<64; i++)
         if (CL[i]) SEARCH_ROM(RL[i]|(B1<<i), i);
     return RESULT;
 }
 
+/* пропуск ROM-команд, старт измерения температуры, 9ms */
 bool SKIP_ROM_CONVERT()
-{   //  пропуск ROM-команд, старт измерения температуры, 9ms
-    bool RESULT=false;
+{    bool RESULT=false;
     unsigned char N=ONEWIRE_REPEAT;
     while (!RESULT && N--)
         if (OW_RESET())
@@ -442,9 +464,9 @@ bool SKIP_ROM_CONVERT()
     return RESULT;
 }
 
-bool GET_TEMPERATURE(uint64_t ROM, float &T)
-{   //  чтение температуры, 28ms
-    uint64_t CRC;
+/* чтение температуры, 28ms */
+bool GET_TEMPERATURE(uint64_t ROM, float *T)
+{    uint64_t CRC;
     unsigned long L1, L2;
     unsigned char L3;
     unsigned char FAMILY=ROM&0xFF;
@@ -453,23 +475,27 @@ bool GET_TEMPERATURE(uint64_t ROM, float &T)
     while (!RESULT && N--)
         if (MATCH_ROM(ROM))
             if (OW_WRITE_BYTE(0xBE))
-                    if (OW_READ_4BYTE(L1))
-                        if (OW_READ_4BYTE(L2))
-                            if (OW_READ_BYTE(L3))
+                    if (OW_READ_4BYTE(&L1))
+                        if (OW_READ_4BYTE(&L2))
+                            if (OW_READ_BYTE(&L3))
                                 {
+                                int i;
+                                short K;
+
                                 CRC=0;
-                                for (int i=0; i<4; i++) CRC=CRC8(CRC, (L1>>(i*8))&0xFF);
-                                for (int i=0; i<4; i++) CRC=CRC8(CRC, (L2>>(i*8))&0xFF);
+                                for (i=0; i<4; i++) CRC=CRC8(CRC, (L1>>(i*8))&0xFF);
+                                for (i=0; i<4; i++) CRC=CRC8(CRC, (L2>>(i*8))&0xFF);
                                 CRC=CRC8(CRC, L3);
                                 RESULT=CRC==0;
 
-                                short K=L1&0xFFFF;
-                                //  DS18B20 +10.125=00A2h, -10.125=FF5Eh
-                                //  DS18S20 +25.0=0032h, -25.0=FFCEh
-                                //  K=0x0032;
-                                T=1000;     //  для неопознанной FAMILY датчик отсутствует
-                                if ((FAMILY==0x28)|(FAMILY==0x22)) T=K*0.0625;  //  DS18B20 | DS1822
-                                if (FAMILY==0x10) T=K*0.5;                      //  DS18S20 | DS1820
+                                K=L1&0xFFFF;
+                                /* DS18B20 +10.125=00A2h, -10.125=FF5Eh
+                                 * DS18S20 +25.0=0032h, -25.0=FFCEh
+                                 * K=0x0032;
+                                */
+                                *T=1000;     /* для неопознанной FAMILY датчик отсутствует */
+                                if ((FAMILY==0x28)|(FAMILY==0x22)) *T=K*0.0625;  /* DS18B20 | DS1822 */
+                                if (FAMILY==0x10) *T=K*0.5;                      /* DS18S20 | DS1820 */
                                 }
     if (!RESULT) printf("Error GET_TEMPERATURE\n");
     return RESULT;
@@ -479,7 +505,7 @@ bool GET_TEMPERATURE(uint64_t ROM, float &T)
 int read_ports()
  {
     unsigned char PS;
-    if(USB_GET_PORT(PS)) {
+    if(USB_GET_PORT(&PS)) {
         if((PS==8)|(PS==24)) printf("Port1 is on\n");
         else printf("Port1 is off\n");
         if(PS>=16) printf("Port2 is on\n");
@@ -494,9 +520,9 @@ int set_port(int num, bool stat)
     unsigned char PS;
     bool ret = 0;
 
-    if (!USB_GET_PORT(PS))
+    if (!USB_GET_PORT(&PS))
         { printf("Error USB_GET_PORT\n"); return 0; }
-    //  включение / выключение
+    /* включение / выключение */
     if ((num==1)&(stat==1))  { PS=PS|0x08; ret = USB_SET_PORT(PS); }
     else if ((num==1)&(stat==0)) { PS=PS&0x10; ret = USB_SET_PORT(PS); }
     else if ((num==2)&(stat==1))  { PS=PS|0x10; ret = USB_SET_PORT(PS); }
@@ -510,19 +536,21 @@ int device_info() {
 	int ret=0;
 	unsigned int SV,ID;
 	unsigned char FAMILY;
-	ret = USB_GET_SOFTV(SV);
+	ret = USB_GET_SOFTV(&SV);
     if(ret) printf("Firmware: %xh\n", SV);
-    ret = USB_GET_FAMILY(FAMILY);
+    ret = USB_GET_FAMILY(&FAMILY);
     if(ret) printf("USB series: %xh\n", FAMILY);
-    ret = USB_GET_ID(ID);
+    ret = USB_GET_ID(&ID);
     if(ret) printf("USB identifier: %xh\n", ID);
     return 1;
 }
 
 int scan() {
+    int i;
+
     SEARCH_ROM(0, 0);
 
-    for(int i=1;i<=ONEWIRE_COUNT;i++)
+    for(i=1;i<=ONEWIRE_COUNT;i++)
         printf("temp_id%d = %" PRIu64 "\n", i, ONEWIRE_ROM[i-1]);
     return 1;
 }
@@ -532,14 +560,14 @@ int temp(uint64_t ROM) {
     ONEWIRE_COUNT = 1;
     ONEWIRE_ROM[0] = ROM;
     SKIP_ROM_CONVERT();
-    ret = GET_TEMPERATURE(ONEWIRE_ROM[0], T);
+    ret = GET_TEMPERATURE(ONEWIRE_ROM[0], &T);
     if(ret) printf("%f\n",T);
     return ret;
 }
 
 int ports_save() {
     unsigned char PS;
-    if (USB_GET_PORT(PS)) {
+    if (USB_GET_PORT(&PS)) {
         if (USB_EE_WR(0x04, PS)) {printf("Status ports saved\n");return 1;}
     }
     printf("Error saving ports status\n");
@@ -548,7 +576,7 @@ int ports_save() {
 
 int delay_get() {
     unsigned char B;
-    USB_EE_RD(0x05, B);
+    USB_EE_RD(0x05, &B);
     printf("%d\n", B);
     return 1;
 }
@@ -566,19 +594,21 @@ int delay_set(int B) {
 uint64_t HexStringToUInt(char* s)
 {
 uint64_t v = 0;
-while (char c = *s++)
+char c;
+
+while ((c = *s++))
 {
-if (c < '0') return 0; //invalid character
-if (c > '9') //shift alphabetic characters down
+if (c < '0') return 0; /* invalid character */
+if (c > '9') /* shift alphabetic characters down */
 {
-if (c >= 'a') c -= 'a' - 'A'; //upper-case 'a' or higher
-if (c > 'Z') return 0; //invalid character
-if (c > '9') c -= 'A'-1-'9'; //make consecutive with digits
-if (c < '9' + 1) return 0; //invalid character
+if (c >= 'a') c -= 'a' - 'A'; /* upper-case 'a' or higher */
+if (c > 'Z') return 0; /* invalid character */
+if (c > '9') c -= 'A'-1-'9'; /* make consecutive with digits */
+if (c < '9' + 1) return 0; /* invalid character */
 }
-c -= '0'; //convert char to hex digit value
-v = v << 4; //shift left by a hex digit
-v += c; //add the current digit
+c -= '0'; /* convert char to hex digit value */
+v = v << 4; /* shift left by a hex digit */
+v += c; /* add the current digit */
 }
 
 return v;
