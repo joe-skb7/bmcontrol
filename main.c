@@ -268,21 +268,6 @@ bool OW_RESET()
     return RESULT;
 }
 
-bool OW_READ_BIT(unsigned char &B)
-{   //  чтение бита, 3ms
-    bool RESULT=false;
-    USB_BUF_CLEAR();
-    USB_BUFO[0]=0x18;    USB_BUFO[1]=0x81;    USB_BUFO[2]=0x01;
-    if (USB_SET_FEATURE())
-        {
-        USB_PAUSE(1);
-        if (USB_GET_FEATURE())
-            { RESULT=(USB_BUFI[0]==0x18)&(USB_BUFI[1]==0x81); B=USB_BUFI[2]&0x01; }
-        }
-    if (!RESULT) printf("Error OW_READ_BIT\n");
-    return RESULT;
-}
-
 bool OW_READ_2BIT(unsigned char &B)
 {   //  чтение 2-x бит, 3ms
     bool RESULT=false;
@@ -392,37 +377,6 @@ unsigned char CRC8(unsigned char CRC, unsigned char D)
     return R;
 }
 
-bool READ_ROM(unsigned long long &ROM64)
-{   //  чтение ROM, 14ms
-    bool RESULT=false;
-    unsigned long B;
-    unsigned char N=ONEWIRE_REPEAT;
-    unsigned long long T, CRC;
-    while (!RESULT && N--)
-        if (OW_RESET())
-            if (OW_WRITE_BYTE(0x33))
-                {   //  чтение 64 бит
-                ROM64=0;    CRC=0;
-                if (OW_READ_4BYTE(B))
-                    {
-                    T=B;
-                    ROM64=ROM64+T;
-                    if (OW_READ_4BYTE(B)) { T=B; ROM64=ROM64+(T<<32); RESULT=true; }
-                        else RESULT=false;
-                    }
-                    else RESULT=false;
-                //   проверка CRC
-                if (RESULT)
-                    {
-                    T=ROM64;
-                    for (int i=0; i<8; i++) CRC=CRC8(CRC, (T>>(i*8))&0xFF);
-                    RESULT=CRC==0;
-                    }
-                }
-    if (!RESULT) printf("Error READ_ROM\n");
-    return RESULT;
-}
-
 bool MATCH_ROM(unsigned long long ROM)
 {   //  выбор прибора по ROM, 14ms
     bool RESULT=false;
@@ -434,16 +388,6 @@ bool MATCH_ROM(unsigned long long ROM)
                 if (OW_WRITE_4BYTE(T&0xFFFFFFFF))
                     RESULT=OW_WRITE_4BYTE((T>>32)&0xFFFFFFFF);
     if (!RESULT) printf("Error MATCH_ROM\n");
-    return RESULT;
-}
-
-bool SKIP_ROM()
-{   //  пропуск ROM-команд, 6ms
-    bool RESULT=false;
-    unsigned char N=ONEWIRE_REPEAT;
-    while (!RESULT && N--)
-        if (OW_RESET()) RESULT=OW_WRITE_BYTE(0xCC);
-    if (!RESULT) printf("Error SKIP_ROM\n");
     return RESULT;
 }
 
