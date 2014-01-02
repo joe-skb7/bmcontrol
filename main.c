@@ -10,6 +10,7 @@
 
 #include <cstdio>
 #include <cstring>
+#include <cstdint>
 
 #define VERSION "1.1"
 #define VENDOR_ID 0x16c0
@@ -20,7 +21,7 @@
 #define USB_REPEAT           5
 unsigned char USB_BUFI[8];
 unsigned char USB_BUFO[8];
-unsigned long long ONEWIRE_ROM[40];
+uint64_t ONEWIRE_ROM[40];
 float ONEWIRE_TEMP[40];
 int ONEWIRE_COUNT;
 float T;
@@ -377,10 +378,10 @@ unsigned char CRC8(unsigned char CRC, unsigned char D)
     return R;
 }
 
-bool MATCH_ROM(unsigned long long ROM)
+bool MATCH_ROM(uint64_t ROM)
 {   //  выбор прибора по ROM, 14ms
     bool RESULT=false;
-    unsigned long long T=ROM;
+    uint64_t T=ROM;
     unsigned char N=ONEWIRE_REPEAT;
     while (!RESULT && N--)
         if (OW_RESET())
@@ -391,14 +392,14 @@ bool MATCH_ROM(unsigned long long ROM)
     return RESULT;
 }
 
-bool SEARCH_ROM(unsigned long long ROM_NEXT, int PL)
+bool SEARCH_ROM(uint64_t ROM_NEXT, int PL)
 {   //  поиск ROM, 1 dev - 410ms, 5 dev - 2.26s, 20 dev - 8.89s
     bool RESULT=false;
     unsigned char N=ONEWIRE_REPEAT;
     unsigned char BIT;
     bool CL[64]; for (int i=0; i<64; i++) CL[i]=false;
-    unsigned long long RL[64];
-    unsigned long long B1=1, CRC, ROM;
+    uint64_t RL[64];
+    uint64_t B1=1, CRC, ROM;
     while (!RESULT && N--)
         {
         ROM=0;
@@ -446,9 +447,9 @@ bool SKIP_ROM_CONVERT()
     return RESULT;
 }
 
-bool GET_TEMPERATURE(unsigned long long ROM, float &T)
+bool GET_TEMPERATURE(uint64_t ROM, float &T)
 {   //  чтение температуры, 28ms
-    unsigned long long CRC;
+    uint64_t CRC;
     unsigned long L1, L2;
     unsigned char L3;
     unsigned char FAMILY=ROM&0xFF;
@@ -534,7 +535,7 @@ int scan() {
     return 1;
 }
 
-int temp(unsigned long long ROM) {
+int temp(uint64_t ROM) {
     int ret;
     ONEWIRE_COUNT = 1;
     ONEWIRE_ROM[0] = ROM;
@@ -570,9 +571,9 @@ int delay_set(int B) {
 }
 
 
-long long unsigned int HexStringToUInt(char* s)
+uint64_t HexStringToUInt(char* s)
 {
-long long unsigned int v = 0;
+uint64_t v = 0;
 while (char c = *s++)
 {
 if (c < '0') return 0; //invalid character
@@ -618,7 +619,7 @@ int main( int argc, char **argv)
              else if(strcmp(argv[1],"scan") == 0) scan();
              else if(strcmp(argv[1],"psave") == 0) ports_save();
              else if((strcmp(argv[1],"temp") == 0)&&(argv[2])) {
-                  long long unsigned rom=0;
+                  uint64_t rom=0;
                   rom = HexStringToUInt(argv[2]);
                   temp(rom);
              }
