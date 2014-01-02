@@ -22,7 +22,6 @@ Dependencies:
 Installing MinGW:
  - next packages need to be installed:
    * mingw32-base
-   * mingw32-gcc-g++
  - add "C:\MinGW\bin" to your "PATH" environment variable
 
 Installing libusb-win32:
