@@ -14,7 +14,7 @@
 
 typedef enum { false, true } bool;
 
-#define VERSION "1.1"
+#define VERSION "1.1.1"
 #define VENDOR_ID 0x16c0
 #define PRODUCT_ID 0x05df
 
@@ -627,7 +627,7 @@ int main( int argc, char **argv)
     lvr_winusb = setup_libusb_access();
 
         if(argc==1) {
-            printf("Temperature sensor BM1707 control v1.1\n");
+            printf("Temperature sensor BM1707 control v" VERSION "\n");
             if(lvr_winusb!=NULL) {
                 printf("Device has been plugged\n");
             }
