@@ -21,6 +21,8 @@ typedef enum { false, true } bool;
 #define INTFACE 0
 #define ONEWIRE_REPEAT       5
 #define USB_REPEAT           5
+#define QUIRK_LIBUSB_SLEEP   20  /* workaround sleep for libusb errara, msec */
+
 unsigned char USB_BUFI[8];
 unsigned char USB_BUFO[8];
 uint64_t ONEWIRE_ROM[40];
@@ -107,8 +109,10 @@ int USB_GET_FEATURE()
 {
     int RESULT = 0;
     int i=USB_REPEAT;   /*  число попыток */
-    while (!RESULT && i--)
+    while (!RESULT && i--) {
             RESULT = usb_control_msg(lvr_winusb, 0xA1, 0x01, 0x300, 0, (char *)USB_BUFI, 0x8, timeout);
+            USB_PAUSE(QUIRK_LIBUSB_SLEEP);
+    }
     if (!RESULT) printf("Error reading from device\n");
 /*
     printf("read ");
@@ -122,7 +126,8 @@ int USB_GET_FEATURE()
 int USB_SET_FEATURE()
 {
     int RESULT=0;
-            RESULT = usb_control_msg(lvr_winusb, 0x21, 0x09, 0x300, 0, (char *)USB_BUFO, 0x8, timeout);
+    RESULT = usb_control_msg(lvr_winusb, 0x21, 0x09, 0x300, 0, (char *)USB_BUFO, 0x8, timeout);
+    USB_PAUSE(QUIRK_LIBUSB_SLEEP);
     if (!RESULT) printf("Error writing to device\n");
 /*
     printf("write ");
