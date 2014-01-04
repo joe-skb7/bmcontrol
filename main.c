@@ -124,9 +124,8 @@ void USB_PAUSE(unsigned int msecs)
 /* очистка буферов приёма и передачи */
 void USB_BUF_CLEAR()
 {
-	int i;
-
-    for (i=0; i<8; i++) { USB_BUFI[i]=0; USB_BUFO[i]=0; }
+	memset(USB_BUFI, 0, sizeof(USB_BUFI));
+	memset(USB_BUFO, 0, sizeof(USB_BUFO));
 }
 
 /* чтение в буфер из устройства */
