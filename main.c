@@ -23,6 +23,20 @@ typedef enum { false, true } bool;
 #define USB_REPEAT           5
 #define QUIRK_LIBUSB_SLEEP   20  /* workaround sleep for libusb errara, msec */
 
+/*
+ * Request types
+ */
+#define USB_RT_IN  (USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_ENDPOINT_IN)
+#define USB_RT_OUT (USB_TYPE_CLASS | USB_RECIP_INTERFACE | USB_ENDPOINT_OUT)
+
+/*
+ * HID class requests
+ */
+#define HID_REQ_GET_REPORT		0x01
+#define HID_REQ_SET_REPORT		0x09
+
+#define FEATURE_REPORT_TYPE		(0x03 << 8)
+
 unsigned char USB_BUFI[8];
 unsigned char USB_BUFO[8];
 uint64_t ONEWIRE_ROM[40];
@@ -33,6 +47,17 @@ float T;
 const static int timeout=5000; /* timeout in ms */
 
 usb_dev_handle *find_lvr_winusb();
+
+/*
+ * In "Device class definition for HID" specification,
+ * "7.2.1 Get_Report Request" chapter: see Remarks.
+ */
+static inline uint16_t feature_report(uint8_t report_id)
+{
+	/* for example: 0x300: 0x3 = feature, 00 = report ID */
+	return FEATURE_REPORT_TYPE | report_id;
+}
+
 usb_dev_handle* setup_libusb_access() {
      usb_dev_handle *lvr_winusb;
      usb_set_debug(0);
@@ -110,8 +135,10 @@ int USB_GET_FEATURE()
     int RESULT = 0;
     int i=USB_REPEAT;   /*  число попыток */
     while (!RESULT && i--) {
-            RESULT = usb_control_msg(lvr_winusb, 0xA1, 0x01, 0x300, 0, (char *)USB_BUFI, 0x8, timeout);
-            USB_PAUSE(QUIRK_LIBUSB_SLEEP);
+        RESULT = usb_control_msg(lvr_winusb, USB_RT_IN, HID_REQ_GET_REPORT,
+                feature_report(0), 0, (char *)USB_BUFI, sizeof(USB_BUFI),
+                timeout);
+        USB_PAUSE(QUIRK_LIBUSB_SLEEP);
     }
     if (!RESULT) printf("Error reading from device\n");
 /*
@@ -126,7 +153,8 @@ int USB_GET_FEATURE()
 int USB_SET_FEATURE()
 {
     int RESULT=0;
-    RESULT = usb_control_msg(lvr_winusb, 0x21, 0x09, 0x300, 0, (char *)USB_BUFO, 0x8, timeout);
+    RESULT = usb_control_msg(lvr_winusb, USB_RT_OUT, HID_REQ_SET_REPORT,
+            feature_report(0), 0, (char *)USB_BUFO, sizeof(USB_BUFO), timeout);
     USB_PAUSE(QUIRK_LIBUSB_SLEEP);
     if (!RESULT) printf("Error writing to device\n");
 /*
