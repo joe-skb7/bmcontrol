@@ -414,12 +414,10 @@ bool SEARCH_ROM(uint64_t ROM_NEXT, int PL)
 {    bool RESULT=false;
     unsigned char N=ONEWIRE_REPEAT;
     unsigned char BIT;
-    bool CL[64];
+    bool CL[64] = { false };
     int i;
     uint64_t RL[64];
     uint64_t B1=1, CRC, ROM;
-
-    for (i=0; i<64; i++) CL[i]=false;
 
     while (!RESULT && N--)
         {
