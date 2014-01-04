@@ -21,7 +21,7 @@ typedef enum { false, true } bool;
 #define INTFACE 0
 #define ONEWIRE_REPEAT       5
 #define USB_REPEAT           5
-#define QUIRK_LIBUSB_SLEEP   20  /* workaround sleep for libusb errara, msec */
+#define QUIRK_LIBUSB_SLEEP   20  /* workaround sleep for libusb errata, msec */
 
 /*
  * Request types
