@@ -397,10 +397,10 @@ bool OW_WRITE_4BYTE(unsigned long B)
     D2=(B>>16)&0xFF;
     D3=(B>>24)&0xFF;
     USB_BUF_CLEAR();
-    USB_BUFO[0]=0x18;    USB_BUFO[1]=0x84;    USB_BUFO[2]=B&0xFF;
-    USB_BUFO[3]=(B>>8)&0xFF;
-    USB_BUFO[4]=(B>>16)&0xFF;
-    USB_BUFO[5]=(B>>24)&0xFF;
+    USB_BUFO[0]=0x18;    USB_BUFO[1]=0x84;    USB_BUFO[2]=D0;
+    USB_BUFO[3]=D1;
+    USB_BUFO[4]=D2;
+    USB_BUFO[5]=D3;
     if (USB_SET_FEATURE())
         {
         USB_PAUSE(2);
