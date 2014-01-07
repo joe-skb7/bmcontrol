@@ -12,7 +12,7 @@
 #include <stdint.h>
 #include <time.h>
 
-typedef enum { false, true } bool;
+#include "bool.h"
 
 #define VERSION "1.1.1"
 #define VENDOR_ID 0x16c0
