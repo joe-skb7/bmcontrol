@@ -9,10 +9,14 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <stdint.h>
 #include <time.h>
 
+#include "std_types.h"
 #include "bool.h"
+
+#if (!defined(__STDC_VERSION__) || __STDC_VERSION__ < 199901L)
+# define inline
+#endif
 
 #define VERSION "1.1.1"
 #define VENDOR_ID 0x16c0

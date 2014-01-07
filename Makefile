@@ -13,6 +13,7 @@ ifeq ($(OS),Windows_NT)
 	PREFIX_BIN = $(PREFIX)
 else
 	ifeq ($(shell uname -s), Linux)
+		CFLAGS += -std=c99 -D_POSIX_C_SOURCE=199309L
 		RM = rm -f
 		CP = install -m 0755
 		MKDIR = mkdir -p
