@@ -678,9 +678,9 @@ int main( int argc, char **argv)
                   rom = HexStringToUInt(argv[2]);
                   temp(rom);
              }
-             else if((strcmp(argv[1],"pset") == 0)&(argc==4)) set_port(atoi((const char*) argv[2]), (bool) atoi((const char*) argv[3]));
+             else if((strcmp(argv[1],"pset") == 0)&(argc==4) && (argv[2] != NULL)) set_port(atoi((const char*) argv[2]), (bool) atoi((const char*) argv[3]));
              else if((strcmp(argv[1],"delay") == 0)&(argc==2)) delay_get();
-             else if((strcmp(argv[1],"delay") == 0)&(argc==3)) delay_set( atoi(argv[2]));
+             else if((strcmp(argv[1],"delay") == 0)&(argc==3) && (argv[2] != NULL)) delay_set( atoi(argv[2]));
              else printf("Wrong command %s.\n", argv[1]);
         }
         else {
