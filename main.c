@@ -1,14 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "c89_quirks.h"
 #include "std_types.h"
 #include "bool.h"
-#include "os_usb.h"
 #include "os_time.h"
-
-#if (!defined(__STDC_VERSION__) || __STDC_VERSION__ < 199901L)
-# define inline
-#endif
+#include "os_usb.h"
 
 #define VERSION "1.1.1"
 #define VENDOR_ID 0x16c0
