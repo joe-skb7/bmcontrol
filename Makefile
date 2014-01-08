@@ -1,14 +1,14 @@
 APP = bmcontrol
-CFLAGS = -Wall -pedantic -O2 -s
+CFLAGS = -Wall -pedantic -O2 -s -Iinclude
 LDFLAGS = -lusb
-OBJS = main.o
+OBJS = src/main.o
 
 ifeq ($(OS),Windows_NT)
 	RM = del /Q
 	CP = copy /Y
 	MKDIR = mkdir
 	BIN = $(APP).exe
-	OBJS += nanosleep_win32.o
+	OBJS += src/nanosleep_win32.o
 	PREFIX ?= "C:\Program Files\BMControl"
 	PREFIX_BIN = $(PREFIX)
 else
@@ -32,7 +32,7 @@ $(BIN): $(OBJS)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 clean:
-	$(RM) *.o $(BIN)
+	$(RM) $(BIN) $(OBJS)
 
 install:
 	$(MKDIR) $(PREFIX_BIN)
