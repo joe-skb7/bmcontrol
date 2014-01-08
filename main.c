@@ -1,18 +1,10 @@
-#if defined(__linux__)
-#include <usb.h>
-#elif defined(_WIN32)
-#include <lusb0_usb.h>
-#include "nanosleep_win32.h"
-#else
-#error Your OS is not supported. Please contact author.
-#endif
-
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
 
 #include "std_types.h"
 #include "bool.h"
+#include "os_usb.h"
+#include "os_time.h"
 
 #if (!defined(__STDC_VERSION__) || __STDC_VERSION__ < 199901L)
 # define inline
