@@ -1,5 +1,5 @@
-#ifndef STD__TYPES_H
-#define STD__TYPES_H
+#ifndef STD__INT_H
+#define STD__INT_H
 
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L)
 # include <stdint.h>
@@ -19,4 +19,4 @@ typedef unsigned long long int	uint64_t;
 # endif
 #endif
 
-#endif /* STD__TYPES_H */
+#endif /* STD__INT_H */

@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "std/c89_quirks.h"
-#include "std/types.h"
+#include "std/quirks.h"
+#include "std/int.h"
 #include "std/bool.h"
 #include "os/time.h"
 #include "os/usb.h"
