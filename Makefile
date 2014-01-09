@@ -4,6 +4,7 @@ LDFLAGS = -lusb
 OBJS = src/main.o
 
 ifeq ($(OS),Windows_NT)
+	fix_path = $(subst /,\,$1)
 	RM = del /Q
 	CP = copy /Y
 	MKDIR = mkdir
@@ -17,6 +18,7 @@ $(warning *** (warning) Currently only Linux and Windows build is supported. \
 Trying to use the same build configuration as on Linux)
 	endif
 
+	fix_path = $1
 	CFLAGS += -std=c99 -D_POSIX_C_SOURCE=199309L
 	RM = rm -f
 	CP = install -m 0755
@@ -35,7 +37,7 @@ $(BIN): $(OBJS)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 clean:
-	$(RM) $(BIN) $(OBJS)
+	$(RM) $(BIN) $(call fix_path,$(OBJS))
 
 install:
 	$(MKDIR) $(PREFIX_BIN)
