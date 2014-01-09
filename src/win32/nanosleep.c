@@ -10,7 +10,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <errno.h>
-#include "win32/nanosleep_win32.h"
+#include "win32/nanosleep.h"
 
 enum { BILLION = 1000 * 1000 * 1000 };
 

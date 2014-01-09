@@ -1,5 +1,5 @@
-#ifndef OS_USB_H
-#define OS_USB_H
+#ifndef OS__USB_H
+#define OS__USB_H
 
 #if defined(__linux__)
 # include <usb.h>
@@ -11,4 +11,4 @@
 # include <usb.h>
 #endif
 
-#endif /* OS_USB_H*/
+#endif /* OS__USB_H*/

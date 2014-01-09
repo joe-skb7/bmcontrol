@@ -1,5 +1,5 @@
-#ifndef BOOL_H
-#define BOOL_H
+#ifndef STD__BOOL_H
+#define STD__BOOL_H
 
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L)
 
@@ -20,4 +20,4 @@ typedef bool _Bool;
 
 #endif
 
-#endif /* BOOL_H */
+#endif /* STD__BOOL_H */

@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "c89_quirks.h"
-#include "std_types.h"
-#include "bool.h"
-#include "os_time.h"
-#include "os_usb.h"
+#include "std/c89_quirks.h"
+#include "std/types.h"
+#include "std/bool.h"
+#include "os/time.h"
+#include "os/usb.h"
 
 #define VERSION "1.1.1"
 #define VENDOR_ID 0x16c0

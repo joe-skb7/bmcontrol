@@ -9,7 +9,7 @@ ifeq ($(OS),Windows_NT)
 	CP = copy /Y
 	MKDIR = mkdir
 	BIN = $(APP).exe
-	OBJS += src/win32/nanosleep_win32.o
+	OBJS += src/win32/nanosleep.o
 	PREFIX ?= "C:\Program Files\BMControl"
 	PREFIX_BIN = $(PREFIX)
 else

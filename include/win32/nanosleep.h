@@ -1,5 +1,5 @@
-#ifndef NANOSLEEP_WIN32_H
-#define NANOSLEEP_WIN32_H
+#ifndef WIN32__NANOSLEEP_H
+#define WIN32__NANOSLEEP_H
 
 #include <time.h>
 
@@ -11,4 +11,4 @@ struct timespec
 
 int nanosleep(const struct timespec *req, struct timespec *rem);
 
-#endif /* NANOSLEEP_WIN32_H */
+#endif /* WIN32__NANOSLEEP_H */
