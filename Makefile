@@ -13,7 +13,7 @@ ifeq ($(OS),Windows_NT)
 	PREFIX ?= "C:\Program Files\BMControl"
 	PREFIX_BIN = $(PREFIX)
 else
-	ifneq ($(shell uname -s), Linux)
+	ifneq ($(shell uname -s),Linux)
 $(warning *** (warning) Currently only Linux and Windows build is supported. \
 Trying to use the same build configuration as on Linux)
 	endif
