@@ -6,7 +6,8 @@
 #elif defined(_WIN32)
 # include "nanosleep_win32.h"
 #else
-/* Try to use the same as for Linux */
+# pragma message("Currently only Linux and Windows build is supported. " \
+                 "Trying to use the same \"time\" header as on Linux.")
 # include <time.h>
 #endif
 

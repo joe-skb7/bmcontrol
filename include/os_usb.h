@@ -6,7 +6,8 @@
 #elif defined(_WIN32)
 # include <lusb0_usb.h>
 #else
-/* Try to use the same as for Linux */
+# pragma message("Currently only Linux and Windows build is supported. " \
+                 "Trying to use the same \"usb\" header as on Linux.")
 # include <usb.h>
 #endif
 
