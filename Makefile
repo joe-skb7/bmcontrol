@@ -1,6 +1,6 @@
 APP = bmcontrol
-CFLAGS = -Wall -pedantic -O2 -s -Iinclude
-LDFLAGS = -lusb
+CFLAGS = -Wall -pedantic -O2 -s -Iinclude $(shell pkg-config --cflags libusb)
+LDFLAGS = $(shell pkg-config --libs libusb)
 OBJS = src/main.o
 
 ifeq ($(OS),Windows_NT)
