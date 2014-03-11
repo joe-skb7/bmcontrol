@@ -67,12 +67,12 @@ usb_dev_handle* setup_libusb_access() {
 #endif
 
         if (usb_set_configuration(lvr_winusb, 1) < 0) {
-                printf("Could not set configuration 1 : \n");
+                fprintf(stderr, "Could not set configuration 1 : \n");
                 return NULL;
         }
 
         if (usb_claim_interface(lvr_winusb, INTFACE) < 0) {
-                printf("Could not claim interface: \n");
+                fprintf(stderr, "Could not claim interface: \n");
                 return NULL;
         }
         return lvr_winusb;
@@ -89,7 +89,7 @@ usb_dev_handle* setup_libusb_access() {
                                 dev->descriptor.idProduct == PRODUCT_ID ) {
                                 usb_dev_handle *handle;
                                 if (!(handle = usb_open(dev))) {
-                                        printf("Could not open USB device\n");
+                                        fprintf(stderr, "Could not open USB device\n");
                                         return NULL;
                                 }
                                 return handle;
@@ -132,7 +132,7 @@ int USB_GET_FEATURE()
                 timeout);
         USB_PAUSE(QUIRK_LIBUSB_SLEEP);
     }
-    if (!RESULT) printf("Error reading from device\n");
+    if (!RESULT) fprintf(stderr, "Error reading from device\n");
 /*
     printf("read ");
     for(int i=0;i<8;i++) printf("%x ",USB_BUFI[i]);
@@ -148,7 +148,7 @@ int USB_SET_FEATURE()
     RESULT = usb_control_msg(lvr_winusb, USB_RT_OUT, HID_REQ_SET_REPORT,
             feature_report(0), 0, (char *)USB_BUFO, sizeof(USB_BUFO), timeout);
     USB_PAUSE(QUIRK_LIBUSB_SLEEP);
-    if (!RESULT) printf("Error writing to device\n");
+    if (!RESULT) fprintf(stderr, "Error writing to device\n");
 /*
     printf("write ");
     for(int i=0;i<8;i++) printf("%x ",USB_BUFO[i]);
@@ -171,7 +171,7 @@ bool USB_GET_PORT(unsigned char *PS)
                 if (USB_BUFI[0]==0x7E) { *PS=USB_BUFI[1]; RESULT=USB_BUFI[2]==*PS; }
                 else RESULT=false;
             }
-    if (!RESULT) printf("Error reading PORT\n");
+    if (!RESULT) fprintf(stderr, "Error reading PORT\n");
     return RESULT;
 }
 
@@ -188,7 +188,7 @@ bool USB_SET_PORT(unsigned char PS)
         if (USB_SET_FEATURE())
             if (USB_GET_FEATURE())
                  { RESULT=(USB_BUFI[0]==0xE7)&(USB_BUFI[1]==PS)&(USB_BUFI[2]==PS); }
-    if (!RESULT) printf("Error writing PORT\n");
+    if (!RESULT) fprintf(stderr, "Error writing PORT\n");
     return RESULT;
 }
 
@@ -206,7 +206,7 @@ bool USB_GET_FAMILY(unsigned char *FAMILY)
                 if (USB_BUFI[0]==0x1D) { RESULT=true; *FAMILY=USB_BUFI[1]; }
                 else RESULT=false;
             }
-    if (!RESULT) printf("Error reading FAMILY\n");
+    if (!RESULT) fprintf(stderr, "Error reading FAMILY\n");
     return RESULT;
 }
 
@@ -224,7 +224,7 @@ bool USB_GET_SOFTV(unsigned int *SV)
                 if (USB_BUFI[0]==0x1D) { RESULT=true; *SV=USB_BUFI[2]+(USB_BUFI[3]>>8); }
                 else RESULT=false;
             }
-    if (!RESULT) printf("Error reading firmware version\n");
+    if (!RESULT) fprintf(stderr, "Error reading firmware version\n");
     return RESULT;
 }
 
@@ -242,7 +242,7 @@ bool USB_GET_ID(unsigned int *ID)
                 if (USB_BUFI[0]==0x1D) { RESULT=true; *ID=(USB_BUFI[4]<<24)+(USB_BUFI[5]<<16)+(USB_BUFI[6]<<8)+USB_BUFI[7]; }
                 else RESULT=false;
             }
-    if (!RESULT) printf("Error reading device ID\n");
+    if (!RESULT) fprintf(stderr, "Error reading device ID\n");
     return RESULT;
 }
 
@@ -258,7 +258,7 @@ bool USB_EE_RD(unsigned char ADR, unsigned char *DATA)
     while (!RESULT && i--)
         if (USB_SET_FEATURE())
             if (USB_GET_FEATURE()) { RESULT=(USB_BUFI[0]==0xE0)&(USB_BUFI[1]==ADR); *DATA=USB_BUFI[2]; }
-    if (!RESULT) printf("Error reading EEPROM\n");
+    if (!RESULT) fprintf(stderr, "Error reading EEPROM\n");
     return RESULT;
 }
 
@@ -277,7 +277,7 @@ bool USB_EE_WR(unsigned char ADR,unsigned  char DATA)
             USB_PAUSE(15); /* на запись в EEPROM */
             if (USB_GET_FEATURE()) RESULT=(USB_BUFI[0]==0x0E)&(USB_BUFI[1]==ADR)&(USB_BUFI[2]==DATA);
             } else RESULT=false;
-    if (!RESULT) printf("Error writing EEPROM\n");
+    if (!RESULT) fprintf(stderr, "Error writing EEPROM\n");
     return RESULT;
 }
 
@@ -300,7 +300,7 @@ bool OW_RESET()
             }
                 else RESULT=false;
             }
-    if (!RESULT) printf("Error OW_RESET\n");
+    if (!RESULT) fprintf(stderr, "Error OW_RESET\n");
     return RESULT;
 }
 
@@ -316,7 +316,7 @@ bool OW_READ_2BIT(unsigned char *B)
         if (USB_GET_FEATURE())
             { RESULT=(USB_BUFI[0]==0x18)&(USB_BUFI[1]==0x82); *B=(USB_BUFI[2]&0x01)+((USB_BUFI[3]<<1)&0x02); }
         }
-    if (!RESULT) printf("Error OW_READ_2BIT\n");
+    if (!RESULT) fprintf(stderr, "Error OW_READ_2BIT\n");
     return RESULT;
 }
 
@@ -331,7 +331,7 @@ bool OW_READ_BYTE(unsigned char *B)
         if (USB_GET_FEATURE())
             { RESULT=(USB_BUFI[0]==0x18)&(USB_BUFI[1]==0x88); *B=USB_BUFI[2]; }
         }
-    if (!RESULT) printf("Error OW_READ_BYTE\n");
+    if (!RESULT) fprintf(stderr, "Error OW_READ_BYTE\n");
     return RESULT;
 }
 
@@ -347,7 +347,7 @@ bool OW_READ_4BYTE(unsigned long *B)
         if (USB_GET_FEATURE())
             { RESULT=(USB_BUFI[0]==0x18)&(USB_BUFI[1]==0x84); *B=USB_BUFI[2]+(USB_BUFI[3]<<8)+(USB_BUFI[4]<<16)+(USB_BUFI[5]<<24); }
         }
-    if (!RESULT) printf("Error OW_READ_4BYTE\n");
+    if (!RESULT) fprintf(stderr, "Error OW_READ_4BYTE\n");
     return RESULT;
 }
 
@@ -362,7 +362,7 @@ bool OW_WRITE_BIT(unsigned char B)
         if (USB_GET_FEATURE())
             RESULT=(USB_BUFI[0]==0x18)&(USB_BUFI[1]==0x81)&((USB_BUFI[2]&0x01)==(B&0x01));
         }
-    if (!RESULT) printf("Error OW_WRITE_BIT\n");
+    if (!RESULT) fprintf(stderr, "Error OW_WRITE_BIT\n");
     return RESULT;
 }
 
@@ -377,7 +377,7 @@ bool OW_WRITE_BYTE(unsigned char B)
         if (USB_GET_FEATURE())
             RESULT=(USB_BUFI[0]==0x18)&(USB_BUFI[1]==0x88)&(USB_BUFI[2]==B);
         }
-    if (!RESULT) printf("Error OW_WRITE_BYTE\n");
+    if (!RESULT) fprintf(stderr, "Error OW_WRITE_BYTE\n");
     return RESULT;
 }
 
@@ -400,7 +400,7 @@ bool OW_WRITE_4BYTE(unsigned long B)
         if (USB_GET_FEATURE())
             RESULT=(USB_BUFI[0]==0x18)&(USB_BUFI[1]==0x84)&(USB_BUFI[2]==D0)&(USB_BUFI[3]==D1)&(USB_BUFI[4]==D2)&(USB_BUFI[5]==D3);
         }
-    if (!RESULT) printf("Error OW_WRITE_4BYTE\n");
+    if (!RESULT) fprintf(stderr, "Error OW_WRITE_4BYTE\n");
     return RESULT;
 }
 
@@ -425,7 +425,7 @@ bool MATCH_ROM(uint64_t ROM)
             if (OW_WRITE_BYTE(0x55))
                 if (OW_WRITE_4BYTE(T&0xFFFFFFFF))
                     RESULT=OW_WRITE_4BYTE((T>>32)&0xFFFFFFFF);
-    if (!RESULT) printf("Error MATCH_ROM\n");
+    if (!RESULT) fprintf(stderr, "Error MATCH_ROM\n");
     return RESULT;
 }
 
@@ -466,7 +466,7 @@ bool SEARCH_ROM(uint64_t ROM_NEXT, int PL)
         if (ROM==0) RESULT=false;
         if (RESULT) { int j; CRC=0; for (j=0; j<8; j++) CRC=CRC8(CRC, (ROM>>(j*8))&0xFF); RESULT=CRC==0; }
         }
-    if (!RESULT) printf("Error SEARCH_ROM\n");
+    if (!RESULT) fprintf(stderr, "Error SEARCH_ROM\n");
         else ONEWIRE_ROM[ONEWIRE_COUNT++]=ROM;
     /* рекурентный вызов поиска */
     for (i=0; i<64; i++)
@@ -482,7 +482,7 @@ bool SKIP_ROM_CONVERT()
         if (OW_RESET())
             if (OW_WRITE_BYTE(0xCC))
                 RESULT=OW_WRITE_BYTE(0x44);
-    if (!RESULT) printf("Error SKIP_ROM_CONVERT\n");
+    if (!RESULT) fprintf(stderr, "Error SKIP_ROM_CONVERT\n");
     return RESULT;
 }
 
@@ -519,7 +519,7 @@ bool GET_TEMPERATURE(uint64_t ROM, float *T)
                                 if ((FAMILY==0x28)|(FAMILY==0x22)) *T=K*0.0625;  /* DS18B20 | DS1822 */
                                 if (FAMILY==0x10) *T=K*0.5;                      /* DS18S20 | DS1820 */
                                 }
-    if (!RESULT) printf("Error GET_TEMPERATURE\n");
+    if (!RESULT) fprintf(stderr, "Error GET_TEMPERATURE\n");
     return RESULT;
 }
 
@@ -543,7 +543,7 @@ int set_port(int num, bool stat)
     bool ret = 0;
 
     if (!USB_GET_PORT(&PS))
-        { printf("Error USB_GET_PORT\n"); return 0; }
+        { fprintf(stderr, "Error USB_GET_PORT\n"); return 0; }
     /* включение / выключение */
     if ((num==1)&(stat==1))  { PS=PS|0x08; ret = USB_SET_PORT(PS); }
     else if ((num==1)&(stat==0)) { PS=PS&0x10; ret = USB_SET_PORT(PS); }
@@ -596,7 +596,7 @@ int ports_save() {
     if (USB_GET_PORT(&PS)) {
         if (USB_EE_WR(0x04, PS)) {printf("Status ports saved\n");return 1;}
     }
-    printf("Error saving ports status\n");
+    fprintf(stderr, "Error saving ports status\n");
     return 0;
 }
 
@@ -609,7 +609,7 @@ int delay_get() {
 
 int delay_set(int B) {
     if(((B<5)|(B>255))&(B!=0)) {
-        printf("Wrong num %d\n",B);
+        fprintf(stderr, "Wrong num %d\n",B);
         return 0;
     }
     if (USB_EE_WR(0x05, B)) {printf("Delay changed\n");return 1;}
@@ -674,10 +674,10 @@ int main( int argc, char **argv)
              else if((strcmp(argv[1],"pset") == 0)&(argc==4) && (argv[2] != NULL)) set_port(atoi((const char*) argv[2]), (bool) atoi((const char*) argv[3]));
              else if((strcmp(argv[1],"delay") == 0)&(argc==2)) delay_get();
              else if((strcmp(argv[1],"delay") == 0)&(argc==3) && (argv[2] != NULL)) delay_set( atoi(argv[2]));
-             else printf("Wrong command %s.\n", argv[1]);
+             else fprintf(stderr, "Wrong command %s.\n", argv[1]);
         }
         else {
-             printf("Device not plugged\n");
+             fprintf(stderr, "Device not plugged\n");
              exit(-1);
         }
         if(lvr_winusb!=NULL) {
