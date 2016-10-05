@@ -1,7 +1,7 @@
 /*
 * nanosleep() implementation for Win32 platform.
 *
-* Given from:
+* Taken from:
 * http://lists.gnu.org/archive/html/bug-gnulib/2010-04/msg00045.html
 *
 * Written by Jim Meyering and Bruno Haible for the Woe32 part.
