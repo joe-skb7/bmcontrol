@@ -51,7 +51,8 @@ static inline uint16_t feature_report(uint8_t report_id)
 	return FEATURE_REPORT_TYPE | report_id;
 }
 
-usb_dev_handle* setup_libusb_access() {
+usb_dev_handle *setup_libusb_access(void)
+{
      usb_dev_handle *lvr_winusb;
      usb_set_debug(0);
      usb_init();
@@ -78,9 +79,8 @@ usb_dev_handle* setup_libusb_access() {
         return lvr_winusb;
  }
 
- usb_dev_handle *find_lvr_winusb()
-
- {
+usb_dev_handle *find_lvr_winusb(void)
+{
       struct usb_bus *bus;
          struct usb_device *dev;
          for (bus = usb_busses; bus; bus = bus->next) {
@@ -97,7 +97,7 @@ usb_dev_handle* setup_libusb_access() {
                 }
         }
         return NULL;
- }
+}
 
 usb_dev_handle *lvr_winusb = NULL;
 
@@ -115,14 +115,14 @@ void USB_PAUSE(unsigned int msecs)
 }
 
 /* очистка буферов приёма и передачи */
-void USB_BUF_CLEAR()
+void USB_BUF_CLEAR(void)
 {
 	memset(USB_BUFI, 0, sizeof(USB_BUFI));
 	memset(USB_BUFO, 0, sizeof(USB_BUFO));
 }
 
 /* чтение в буфер из устройства */
-int USB_GET_FEATURE()
+int USB_GET_FEATURE(void)
 {
     int RESULT = 0;
     int i=USB_REPEAT;   /*  число попыток */
@@ -142,7 +142,7 @@ int USB_GET_FEATURE()
 }
 
 /* запись из буфера в устройство */
-int USB_SET_FEATURE()
+int USB_SET_FEATURE(void)
 {
     int RESULT=0;
     RESULT = usb_control_msg(lvr_winusb, USB_RT_OUT, HID_REQ_SET_REPORT,
@@ -282,7 +282,7 @@ bool USB_EE_WR(unsigned char ADR,unsigned  char DATA)
 }
 
 /* RESET, ~3ms */
-bool OW_RESET()
+bool OW_RESET(void)
 {
     bool RESULT=false;
     unsigned char N=ONEWIRE_REPEAT;
@@ -475,7 +475,7 @@ bool SEARCH_ROM(uint64_t ROM_NEXT, int PL)
 }
 
 /* пропуск ROM-команд, старт измерения температуры, 9ms */
-bool SKIP_ROM_CONVERT()
+bool SKIP_ROM_CONVERT(void)
 {    bool RESULT=false;
     unsigned char N=ONEWIRE_REPEAT;
     while (!RESULT && N--)
@@ -524,7 +524,7 @@ bool GET_TEMPERATURE(uint64_t ROM, float *T)
 }
 
 
-int read_ports()
+int read_ports(void)
  {
     unsigned char PS;
     if(USB_GET_PORT(&PS)) {
@@ -554,7 +554,8 @@ int set_port(int num, bool stat)
     return 1;
 }
 
-int device_info() {
+int device_info(void)
+{
 	int ret=0;
 	unsigned int SV,ID;
 	unsigned char FAMILY;
@@ -567,7 +568,7 @@ int device_info() {
     return 1;
 }
 
-int scan() {
+int scan(void) {
     int i;
 
     SEARCH_ROM(0, 0);
@@ -591,7 +592,8 @@ int temp(uint64_t ROM) {
     return ret;
 }
 
-int ports_save() {
+int ports_save(void)
+{
     unsigned char PS;
     if (USB_GET_PORT(&PS)) {
         if (USB_EE_WR(0x04, PS)) {printf("Status ports saved\n");return 1;}
@@ -600,7 +602,7 @@ int ports_save() {
     return 0;
 }
 
-int delay_get() {
+int delay_get(void) {
     unsigned char B;
     USB_EE_RD(0x05, &B);
     printf("%d\n", B);
