@@ -33,7 +33,6 @@
 static unsigned char USB_BUFI[8];
 static unsigned char USB_BUFO[8];
 static uint64_t ONEWIRE_ROM[40];
-static float ONEWIRE_TEMP[40];
 static int ONEWIRE_COUNT;
 static float T;
 
