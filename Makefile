@@ -1,5 +1,5 @@
 APP = bmcontrol
-CFLAGS = -Wall -pedantic -O2 -s -Iinclude $(shell pkg-config --cflags libusb)
+CFLAGS = -Wall -pedantic -O2 -Iinclude $(shell pkg-config --cflags libusb)
 LDFLAGS = $(shell pkg-config --libs libusb)
 OBJS = src/main.o
 
@@ -43,4 +43,4 @@ install:
 	$(MKDIR) $(PREFIX_BIN)
 	$(CP) $(BIN) $(PREFIX_BIN)
 
-.PHONY: default clean
+.PHONY: default clean install
