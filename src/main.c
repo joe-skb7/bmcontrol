@@ -602,7 +602,8 @@ static int ports_save(void)
 }
 
 static int delay_get(void) {
-    unsigned char B;
+    unsigned char B = 0;
+
     USB_EE_RD(0x05, &B);
     printf("%d\n", B);
     return 1;
