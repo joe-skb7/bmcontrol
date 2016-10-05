@@ -3,8 +3,7 @@
 
 #include <time.h>
 
-struct timespec
-{
+struct timespec {
 	time_t tv_sec;
 	long int tv_nsec;
 };
