@@ -7,14 +7,17 @@
 #include <stdio.h>
 #include <string.h>
 
-#define VERSION "1.1.1"
-#define VENDOR_ID 0x16c0
-#define PRODUCT_ID 0x05df
+#define VERSION				"1.1.1"
+#define VENDOR_ID			0x16c0
+#define PRODUCT_ID			0x05df
 
-#define INTFACE 0
-#define ONEWIRE_REPEAT       5
-#define USB_REPEAT           5
-#define QUIRK_LIBUSB_SLEEP   20  /* workaround sleep for libusb errata, msec */
+#define INTFACE				0
+#define ONEWIRE_REPEAT			5
+#define USB_REPEAT			5
+/* How long to wait for USB message to complete before timeout, msec */
+#define MSG_TIMEOUT			5000
+/* Workaround sleep for libusb errata, msec */
+#define QUIRK_LIBUSB_SLEEP		20
 
 /*
  * Request types
@@ -35,8 +38,6 @@ static unsigned char USB_BUFO[8];
 static uint64_t ONEWIRE_ROM[40];
 static int ONEWIRE_COUNT;
 static float T;
-
-const static int timeout=5000; /* timeout in ms */
 
 usb_dev_handle *find_lvr_winusb();
 
@@ -128,7 +129,7 @@ static int USB_GET_FEATURE(void)
     while (!RESULT && i--) {
         RESULT = usb_control_msg(lvr_winusb, USB_RT_IN, HID_REQ_GET_REPORT,
                 feature_report(0), 0, (char *)USB_BUFI, sizeof(USB_BUFI),
-                timeout);
+                MSG_TIMEOUT);
         USB_PAUSE(QUIRK_LIBUSB_SLEEP);
     }
     if (!RESULT) fprintf(stderr, "Error reading from device\n");
@@ -145,7 +146,8 @@ static int USB_SET_FEATURE(void)
 {
     int RESULT=0;
     RESULT = usb_control_msg(lvr_winusb, USB_RT_OUT, HID_REQ_SET_REPORT,
-            feature_report(0), 0, (char *)USB_BUFO, sizeof(USB_BUFO), timeout);
+            feature_report(0), 0, (char *)USB_BUFO, sizeof(USB_BUFO),
+            MSG_TIMEOUT);
     USB_PAUSE(QUIRK_LIBUSB_SLEEP);
     if (!RESULT) fprintf(stderr, "Error writing to device\n");
 /*
