@@ -1,3 +1,16 @@
+Introduction
+------------
+
+"bmcontrol" is a tool for interacting with MP707 (ex. BM1707) temperature
+sensor boards. For more standard temperature sensors boards one can use
+"digitemp" tool, which is more widely used.
+
+This fork fixes several issues in original code.
+Fork initial discussion (in russian):
+
+    https://www.opennet.ru/openforum/vsluhforumID9/9804.html
+
+
 Building on Linux
 -----------------
 
@@ -6,10 +19,12 @@ Dependencies:
  - libusb-dev
 
 Building:
-$ make
+
+    $ make
 
 Installation:
-$ sudo make install
+
+    $ sudo make install
 
 
 Building on Windows
@@ -37,7 +52,9 @@ Installing libusb-win32:
    * lib\gcc\libusb.a -> C:\MinGW\lib
 
 Building:
-% mingw32-make
+
+    % mingw32-make
 
 Installation:
-% mingw32-make install
+
+    % mingw32-make install
